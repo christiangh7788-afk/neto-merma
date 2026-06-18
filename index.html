@@ -603,8 +603,8 @@ tbody tr:last-child td{border-bottom:none}
       <button class="tab" data-v="super">Coach</button>
       <button class="tab" data-v="conteos">Conteos</button>
       <button class="tab" data-v="efectivo">Efectivo</button>
-      <button class="tab" data-v="valida">Validación</button>
       <button class="tab" data-v="peor">Ranking</button>
+      <button class="tab" data-v="valida">Validación</button>
     </div>
   </div>
 </header>
@@ -2031,7 +2031,15 @@ function show(v){
   document.getElementById('v-'+v).classList.add('active');
   if(!rendered[v]){({cia:renderCia,reg:renderReg,tie:renderTie,riesgo:renderRiesgo,super:renderSuper,conteos:renderConteos,efectivo:renderEfectivo,valida:renderValida,peor:renderPeor})[v]();rendered[v]=1;}
 }
-document.getElementById('tabs').onclick=e=>{const b=e.target.closest('.tab');if(b)show(b.dataset.v);};
+let validaUnlocked=false;
+document.getElementById('tabs').onclick=e=>{const b=e.target.closest('.tab');if(!b)return;
+  if(b.dataset.v==='valida'&&!validaUnlocked){
+    const pwd=prompt('Acceso restringido. Ingresa la contraseña para ver Validación:');
+    if(pwd===null)return;
+    if(pwd.trim()!=='campo26'){alert('Contraseña incorrecta.');return;}
+    validaUnlocked=true;
+  }
+  show(b.dataset.v);};
 document.getElementById('objTxt').textContent=pct(OBJ);
 
 // ============ ARRANQUE + SINCRONIZACIÓN GOOGLE SHEETS ============
