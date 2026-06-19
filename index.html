@@ -509,6 +509,35 @@ tbody tr:last-child td{border-bottom:none}
 .ct-sd{color:var(--muted)}
 .rlist{display:flex;flex-direction:column;gap:2px;margin-top:6px}
 .rlist .rrow{cursor:pointer}
+.res-btn{background:linear-gradient(135deg,var(--orange),#ff9a4d);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-weight:800;font-size:13.5px;cursor:pointer;box-shadow:0 4px 14px rgba(244,121,32,.35);transition:transform .12s}
+.res-btn:hover{transform:translateY(-1px)}
+.res-btn:disabled{opacity:.6;cursor:default;transform:none}
+.res-out{margin-top:4px}
+.res-empty,.res-err{padding:40px 22px;text-align:center;color:var(--muted);background:var(--surf);border-radius:14px;border:1px dashed var(--line)}
+.res-err{color:#dc2626;border-color:#dc2626}
+.res-loading{padding:48px 22px;text-align:center;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:14px}
+.res-spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--orange);border-radius:50%;animation:resspin .8s linear infinite}
+@keyframes resspin{to{transform:rotate(360deg)}}
+.res-head{display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--card);border-radius:14px;border-left:5px solid;margin-bottom:14px}
+.res-sem{color:#fff;font-weight:800;font-size:12px;padding:5px 11px;border-radius:20px;white-space:nowrap}
+.res-titular{font-size:17px;font-weight:800;letter-spacing:-.3px;line-height:1.3}
+.res-when{font-size:11.5px;color:var(--muted);font-weight:700;margin-top:3px}
+.res-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.res-k{background:var(--card);border-radius:12px;padding:13px 15px;display:flex;flex-direction:column;gap:2px}
+.res-k span{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.res-k b{font-size:22px;font-weight:800}
+.res-k small{font-size:11.5px;color:var(--muted)}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:14px}
+.res-card{background:var(--card);border-radius:14px;padding:16px 18px}
+.res-card h3{font-size:15px;font-weight:800;margin-bottom:8px}
+.res-diag{font-size:13.5px;line-height:1.5;color:var(--ink);margin-bottom:10px}
+.res-sub{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--orange);margin:10px 0 4px}
+.res-list{margin:0;padding-left:18px}
+.res-list li{font-size:13px;line-height:1.55;margin-bottom:4px}
+.res-top{border:2px solid var(--orange)}
+.res-top-list{margin:6px 0 0;padding-left:22px;counter-reset:item}
+.res-top-list li{font-size:14px;line-height:1.6;margin-bottom:8px;font-weight:600}
+.res-foot{font-size:11px;color:var(--muted);margin-top:14px;font-style:italic;text-align:center}
 .v-table th,.v-table td{text-align:left}
 .v-table .v-dash{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
 .v-table .v-reg{font-weight:800}
@@ -604,6 +633,7 @@ tbody tr:last-child td{border-bottom:none}
       <button class="tab" data-v="conteos">Conteos</button>
       <button class="tab" data-v="efectivo">Efectivo</button>
       <button class="tab" data-v="peor">Ranking</button>
+      <button class="tab" data-v="resumen">Resumen Ejecutivo</button>
       <button class="tab" data-v="valida">Validación</button>
     </div>
   </div>
@@ -619,6 +649,7 @@ tbody tr:last-child td{border-bottom:none}
   <section class="view" id="v-efectivo"></section>
   <section class="view" id="v-valida"></section>
   <section class="view" id="v-peor"></section>
+  <section class="view" id="v-resumen"></section>
   <div class="foot" id="foot">Resultado: «Total / Porc de merma con depósito» · Objetivo -0.65%</div>
 </main>
 
@@ -787,7 +818,7 @@ function renderCia(){
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:C.muted,font:{family:'Manrope',weight:'700'},usePointStyle:true,pointStyle:'circle'}}},scales:{x:{grid:{display:false},ticks:{color:C.muted,font:{family:'Manrope',weight:'700'}}},y:{grid:{color:C.line},border:{display:false},ticks:{color:C.muted,font:{family:'Manrope'},precision:0}}}}});
 }
 const shortReg=r=>r.replace('Veracruz ','');
-function trendOpts(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(2)+'%'}}},scales:{x:{grid:{display:false},ticks:{color:C.muted,font:{family:'Manrope',weight:'700'}}},y:{grid:{color:C.line},border:{display:false},ticks:{color:C.muted,font:{family:'Manrope'},callback:v=>v.toFixed(2)+'%'}}}};}
+function trendOpts(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(2)+'%'}}},scales:{x:{grid:{display:false},ticks:{color:C.muted,font:{family:'Manrope',weight:'700'}}},y:{reverse:true,grid:{color:C.line},border:{display:false},ticks:{color:C.muted,font:{family:'Manrope'},callback:v=>v.toFixed(2)+'%'}}}};}
 function barOpts(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y.toFixed(2)+'%'}}},scales:{x:{grid:{display:false},ticks:{color:C.muted,font:{family:'Manrope',weight:'700'}}},y:{grid:{color:C.line},border:{display:false},ticks:{color:C.muted,font:{family:'Manrope'},callback:v=>v.toFixed(2)+'%'}}}};}
 
 // ============ REGIONES ============
@@ -1827,6 +1858,180 @@ function renderConteos(){
   bindMonthSelect();
 }
 
+
+// ============ RESUMEN EJECUTIVO (IA) ============
+let resMonth=null;
+function resBuildData(month){
+  // Merma por región
+  const ob=OBJ;
+  const reg=DATA.regions.map(r=>{
+    const stores=S.filter(s=>s.region===r&&s.meses[month]&&!s.meses[month].apertura);
+    const vals=stores.map(s=>s.meses[month]);
+    const monto=vals.reduce((a,v)=>a+v.monto,0), venta=vals.reduce((a,v)=>a+v.venta,0);
+    const fuera=stores.filter(s=>s.meses[month].pct<ob).length;
+    // zonas peores
+    const zmap={};
+    stores.forEach(s=>{(zmap[s.zona]=zmap[s.zona]||{m:0,v:0,n:0}); const c=s.meses[month]; zmap[s.zona].m+=c.monto; zmap[s.zona].v+=c.venta; zmap[s.zona].n++;});
+    const zonas=Object.entries(zmap).map(([z,d])=>({zona:z,pct:d.v?d.m/d.v:0,monto:Math.round(d.m),tiendas:d.n})).sort((a,b)=>a.pct-b.pct);
+    return {region:shortReg(r),tiendas:stores.length,monto:Math.round(monto),pct:venta?+(monto/venta*100).toFixed(3):null,fueraObjetivo:fuera,peoresZonas:zonas.slice(0,3)};
+  });
+  const all=S.filter(s=>s.meses[month]&&!s.meses[month].apertura);
+  const mo=all.reduce((a,s)=>a+s.meses[month].monto,0), ve=all.reduce((a,s)=>a+s.meses[month].venta,0);
+  // Efectivo por región
+  const efe=DATA.regions.map(r=>{
+    const stores=S.filter(s=>s.region===r);
+    let f=0,v=0; stores.forEach(s=>{f+=faltOfStore(s,month); v+=efVentaOf(s,month);});
+    const zmap={};
+    stores.forEach(s=>{const ff=faltOfStore(s,month); if(ff<0){(zmap[s.zona]=zmap[s.zona]||0); zmap[s.zona]+=ff;}});
+    const zonas=Object.entries(zmap).map(([z,m])=>({zona:z,monto:Math.round(m)})).sort((a,b)=>a.monto-b.monto);
+    return {region:shortReg(r),faltante:Math.round(f),pct:v?+(f/v*100).toFixed(3):null,peoresZonas:zonas.slice(0,3)};
+  });
+  let ef=0,ev=0; S.forEach(s=>{ef+=faltOfStore(s,month); ev+=efVentaOf(s,month);});
+  // Conteos por región (cumplimiento)
+  const cont=DATA.regions.map(r=>{
+    const stores=S.filter(s=>s.region===r);
+    let n=0,t=0; stores.forEach(s=>{const c=s.conteos&&s.conteos[month]; if(c){n+=c.n; t+=c.n+c.cre+c.can+c.abi+c.otr;}});
+    return {region:shortReg(r),cerrados:n,asignados:t,cumplimiento:t?Math.round(n/t*100):null};
+  });
+  // Descarga merma / Brisa totales
+  let desc=0,brisa=0; S.forEach(s=>{desc+=(s.desc&&s.desc[month])||0; brisa+=(s.brisa&&s.brisa[month])||0;});
+  return {
+    mes:ML[month], objetivoMerma:+(ob*100).toFixed(2),
+    compania:{merma:{monto:Math.round(mo),pct:ve?+(mo/ve*100).toFixed(3):null,tiendasAuditadas:all.length},
+              efectivo:{faltante:Math.round(ef),pct:ev?+(ef/ev*100).toFixed(3):null},
+              descargaMerma:Math.round(desc), aclaracionesBrisa:Math.round(brisa)},
+    mermaPorRegion:reg, efectivoPorRegion:efe, conteosPorRegion:cont
+  };
+}
+function resPrompt(data){
+  return `Eres analista de operaciones de retail (cadena de tiendas de conveniencia Neto, división Veracruz). Analiza estos datos de cierre de ${data.mes} y entrega un RESUMEN EJECUTIVO para el Gerente Divisional.
+
+DATOS (JSON):
+${JSON.stringify(data,null,1)}
+
+Contexto: el objetivo de merma es ${data.objetivoMerma}% (negativo = pérdida). Una tienda está "fuera de objetivo" si su merma es peor que el objetivo. El faltante de efectivo es dinero faltante en caja. Los conteos son inventarios cíclicos; mayor % de cumplimiento es mejor. "Descarga de merma" y "Aclaraciones Brisa" son ajustes que recuperan merma.
+
+Responde SOLO con un JSON válido (sin texto antes ni después, sin markdown) con esta estructura exacta:
+{
+ "titular": "una frase de 12-18 palabras con el mensaje central del mes",
+ "semaforo": "verde|amarillo|rojo",
+ "merma": {"diagnostico": "2-3 frases sobre el estado de la merma por región y qué la explica", "causas": ["causa 1","causa 2","causa 3"], "acciones": ["acción concreta 1","acción 2","acción 3"]},
+ "efectivo": {"diagnostico": "2-3 frases sobre faltante de efectivo y zonas críticas", "causas": ["causa 1","causa 2"], "acciones": ["acción 1","acción 2"]},
+ "conteos": {"diagnostico": "1-2 frases sobre disciplina de conteos por región y su relación con la merma", "acciones": ["acción 1","acción 2"]},
+ "top5Acciones": ["acción prioritaria 1 (la más urgente, con región/zona específica)","2","3","4","5"]
+}
+Sé concreto y operativo: menciona regiones y zonas por nombre, prioriza lo que más impacta llegar al objetivo. Español de México, tono directo y ejecutivo.`;
+}
+function resEsc(t){return (t||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+async function resGenerate(){
+  const box=document.getElementById('resOut');
+  const btn=document.getElementById('resBtn');
+  btn.disabled=true; btn.textContent='Analizando…';
+  box.innerHTML='<div class="res-loading"><div class="res-spin"></div>Claude está analizando los datos de '+ML[resMonth]+'…</div>';
+  const data=resBuildData(resMonth);
+  try{
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1500,messages:[{role:"user",content:resPrompt(data)}]})
+    });
+    const j=await resp.json();
+    let txt=(j.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
+    txt=txt.replace(/^```json/i,'').replace(/```$/,'').trim();
+    const a=JSON.parse(txt);
+    resRender(a,data);
+  }catch(err){
+    box.innerHTML='<div class="res-err">No se pudo generar el análisis. Verifica la conexión / API. <br><small>'+resEsc(String(err))+'</small></div>';
+  }
+  btn.disabled=false; btn.textContent='↻ Regenerar análisis';
+}
+function resRender(a,data){
+  const semClr={verde:'#16a34a',amarillo:'#f59e0b',rojo:'#dc2626'}[a.semaforo]||'#888';
+  const semTxt={verde:'En control',amarillo:'Atención',rojo:'Crítico'}[a.semaforo]||'';
+  const li=arr=>'<ul class="res-list">'+(arr||[]).map(x=>'<li>'+resEsc(x)+'</li>').join('')+'</ul>';
+  const sec=(icon,title,d)=>`<div class="res-card">
+    <h3>${icon} ${title}</h3>
+    ${d.diagnostico?`<p class="res-diag">${resEsc(d.diagnostico)}</p>`:''}
+    ${d.causas?`<div class="res-sub">Causas probables</div>${li(d.causas)}`:''}
+    ${d.acciones?`<div class="res-sub">Acciones</div>${li(d.acciones)}`:''}
+  </div>`;
+  document.getElementById('resOut').innerHTML=`
+    <div class="res-head" style="border-color:${semClr}">
+      <span class="res-sem" style="background:${semClr}">${semTxt}</span>
+      <div class="res-titular">${resEsc(a.titular)}</div>
+    </div>
+    <div class="res-kpis">
+      <div class="res-k"><span>Merma compañía</span><b class="${data.compania.merma.pct<data.objetivoMerma?'neg':''}">${data.compania.merma.pct}%</b><small>${peso(data.compania.merma.monto)} · ${data.compania.merma.tiendasAuditadas} tiendas</small></div>
+      <div class="res-k"><span>Faltante efectivo</span><b class="neg">${data.compania.efectivo.pct}%</b><small>${peso(data.compania.efectivo.faltante)}</small></div>
+      <div class="res-k"><span>Objetivo merma</span><b>${data.objetivoMerma}%</b><small>meta divisional</small></div>
+    </div>
+    <div class="res-grid">
+      ${sec('📉','Merma',a.merma||{})}
+      ${sec('💵','Efectivo',a.efectivo||{})}
+      ${sec('📋','Conteos',a.conteos||{})}
+    </div>
+    <div class="res-card res-top">
+      <h3>🎯 Top 5 acciones para llegar al objetivo</h3>
+      <ol class="res-top-list">${(a.top5Acciones||[]).map(x=>'<li>'+resEsc(x)+'</li>').join('')}</ol>
+    </div>
+    <p class="res-foot">Análisis generado por Claude (IA) sobre los datos de ${ML[resMonth]} · Las recomendaciones son orientativas y deben validarse con criterio operativo.</p>`;
+}
+function renderResumen(){
+  const el=document.getElementById('v-resumen');
+  // ====== RESUMEN EJECUTIVO INCRUSTADO (generado en cada actualización) ======
+  const R={
+    actualizado:"19/06/2026",
+    periodo:"Junio 2026",
+    semaforo:"rojo",
+    titular:"La merma de Compañía Veracruz va en -1.20%, casi el doble del objetivo, con Sur y Norte como focos rojos.",
+    kpi:{mermaPct:-1.20, mermaMonto:-1142034, tiendas:63, efePct:-0.531, efeMonto:-240080, obj:-0.65},
+    merma:{
+      diagnostico:"Junio va en -1.20% (-$1,142,034, 63 tiendas auditadas), muy por encima del objetivo de -0.65%. Veracruz Sur (-1.45%) y Norte (-1.38%) son los focos críticos; Centro (-0.72%) está más cerca pero aún fuera. 31 de 63 tiendas auditadas están fuera de objetivo. El daño se concentra en pocas tiendas con merma extrema: Tuxtlas -10.82% (Revolución Social, -$196K), Huejutla -2.35%, Tuxpan -2.32% y Portuaria -3.97% (Díaz Mirón).",
+      causas:["Tiendas individuales con merma fuera de control que arrastran toda su zona","Recuperación casi nula vía descarga de merma ($7,101, marginal)","Concentración de pérdida en mercados y tiendas de alto volumen"],
+      acciones:["Intervención inmediata en las tiendas con merma >2%: Revolución Social, Díaz Mirón, Huejutla, Tuxpan Américas, Coscomatepec","Auditoría dirigida en Sur y Norte antes del siguiente corte","Revisar por qué la descarga de merma es casi nula y activar ese mecanismo de recuperación"]
+    },
+    efectivo:{
+      diagnostico:"Faltante de -0.531% (-$240,080). Norte es la región con mayor faltante (-$94,623), seguida de Sur (-$82,148). Zonas críticas: Cuenca (-$34,367), Tuxpan (-$31,585) y Costa Esmeralda (-$19,641).",
+      causas:["Faltante recurrente en zonas con racha de varios meses consecutivos","Control de caja débil en tiendas específicas de Norte y Sur"],
+      acciones:["Arqueos sorpresa en las zonas Cuenca y Tuxpan","Revisar control de caja en las tiendas con faltante recurrente"]
+    },
+    conteos:{
+      diagnostico:"Cumplimiento desigual: Centro 95%, Sur 84%, Norte 79%. Norte combina el peor cumplimiento de conteos con la segunda peor merma — menos disciplina de inventario suele anticipar más merma.",
+      acciones:["Exigir a Norte cerrar la brecha de conteos (16 pts debajo de Centro)","Usar el cumplimiento de conteos como predictor temprano de merma"]
+    },
+    top5:[
+      "Intervención urgente en Revolución Social (Tuxtlas, -10.82%, -$196K): una sola tienda explica el 17% de la merma de la compañía",
+      "Plan de choque en Veracruz Sur (-1.45%), la región más lejos del objetivo",
+      "Auditar Huejutla y Tuxpan (Norte): ambas zonas con merma >2.3%",
+      "Subir el cumplimiento de conteos de Norte (79% → 95%) para frenar merma futura",
+      "Activar la descarga de merma, hoy casi inexistente ($7K), como palanca de recuperación"
+    ]
+  };
+  const esc=t=>(t||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const li=arr=>'<ul class="res-list">'+(arr||[]).map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  const sec=(icon,title,d)=>`<div class="res-card"><h3>${icon} ${title}</h3>${d.diagnostico?`<p class="res-diag">${esc(d.diagnostico)}</p>`:''}${d.causas?`<div class="res-sub">Causas probables</div>${li(d.causas)}`:''}${d.acciones?`<div class="res-sub">Acciones</div>${li(d.acciones)}`:''}</div>`;
+  const semClr={verde:'#16a34a',amarillo:'#f59e0b',rojo:'#dc2626'}[R.semaforo]||'#888';
+  const semTxt={verde:'En control',amarillo:'Atención',rojo:'Crítico'}[R.semaforo]||'';
+  el.innerHTML=`
+  <div class="topbar"><span class="tb-note">Resumen ejecutivo de Compañía Veracruz · merma, efectivo y conteos con causas y acciones · <b>actualizado al ${R.actualizado}</b></span></div>
+  <div class="res-out">
+    <div class="res-head" style="border-color:${semClr}">
+      <span class="res-sem" style="background:${semClr}">${semTxt}</span>
+      <div><div class="res-titular">${esc(R.titular)}</div><div class="res-when">Compañía Veracruz · ${R.periodo} · última actualización ${R.actualizado}</div></div>
+    </div>
+    <div class="res-kpis">
+      <div class="res-k"><span>Merma Compañía Veracruz</span><b class="neg">${R.kpi.mermaPct}%</b><small>${peso(R.kpi.mermaMonto)} · ${R.kpi.tiendas} tiendas</small></div>
+      <div class="res-k"><span>Faltante efectivo</span><b class="neg">${R.kpi.efePct}%</b><small>${peso(R.kpi.efeMonto)}</small></div>
+      <div class="res-k"><span>Objetivo merma</span><b>${R.kpi.obj}%</b><small>meta compañía</small></div>
+    </div>
+    <div class="res-grid">
+      ${sec('📉','Merma',R.merma)}
+      ${sec('💵','Efectivo',R.efectivo)}
+      ${sec('📋','Conteos',R.conteos)}
+    </div>
+    <div class="res-card res-top"><h3>🎯 Top 5 acciones para llegar al objetivo</h3><ol class="res-top-list">${R.top5.map(x=>'<li>'+esc(x)+'</li>').join('')}</ol></div>
+    <p class="res-foot">Resumen ejecutivo de Compañía Veracruz · datos al ${R.actualizado} · Las recomendaciones son orientativas y deben validarse con criterio operativo.</p>
+  </div>`;
+}
 // ============ VALIDACIÓN ============
 let vMonth=null;
 function vCompute(month){
@@ -2024,17 +2229,17 @@ function showFaltZona(region,zona){
 }
 
 // ============ TABS ============
-let rendered={cia:0,reg:0,tie:0,riesgo:0,super:0,conteos:0,efectivo:0,valida:0,peor:0};
+let rendered={cia:0,reg:0,tie:0,riesgo:0,super:0,conteos:0,efectivo:0,valida:0,resumen:0,peor:0};
 function show(v){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.v===v));
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('active'));
   document.getElementById('v-'+v).classList.add('active');
-  if(!rendered[v]){({cia:renderCia,reg:renderReg,tie:renderTie,riesgo:renderRiesgo,super:renderSuper,conteos:renderConteos,efectivo:renderEfectivo,valida:renderValida,peor:renderPeor})[v]();rendered[v]=1;}
+  if(!rendered[v]){({cia:renderCia,reg:renderReg,tie:renderTie,riesgo:renderRiesgo,super:renderSuper,conteos:renderConteos,efectivo:renderEfectivo,valida:renderValida,resumen:renderResumen,peor:renderPeor})[v]();rendered[v]=1;}
 }
 let validaUnlocked=false;
 document.getElementById('tabs').onclick=e=>{const b=e.target.closest('.tab');if(!b)return;
-  if(b.dataset.v==='valida'&&!validaUnlocked){
-    const pwd=prompt('Acceso restringido. Ingresa la contraseña para ver Validación:');
+  if((b.dataset.v==='valida'||b.dataset.v==='resumen')&&!validaUnlocked){
+    const pwd=prompt('Acceso restringido. Ingresa la contraseña:');
     if(pwd===null)return;
     if(pwd.trim()!=='campo26'){alert('Contraseña incorrecta.');return;}
     validaUnlocked=true;
@@ -2048,9 +2253,9 @@ const origShow=show;
 show=function(v){active=v;origShow(v);};
 function rerenderAll(){
   Object.keys(charts).forEach(k=>{charts[k].destroy();delete charts[k];});
-  rendered={cia:0,reg:0,tie:0,riesgo:0,super:0,conteos:0,efectivo:0,valida:0,peor:0};
+  rendered={cia:0,reg:0,tie:0,riesgo:0,super:0,conteos:0,efectivo:0,valida:0,resumen:0,peor:0};
   document.getElementById('objTxt').textContent=pct(curObj());
-  ({cia:renderCia,reg:renderReg,tie:renderTie,riesgo:renderRiesgo,super:renderSuper,conteos:renderConteos,efectivo:renderEfectivo,valida:renderValida,peor:renderPeor})[active]();
+  ({cia:renderCia,reg:renderReg,tie:renderTie,riesgo:renderRiesgo,super:renderSuper,conteos:renderConteos,efectivo:renderEfectivo,valida:renderValida,resumen:renderResumen,peor:renderPeor})[active]();
   rendered[active]=1;
 }
 function setStatus(txt,cls){const el=document.getElementById('dataStatus');if(el){el.textContent=txt;el.className='dstatus '+cls;}}
