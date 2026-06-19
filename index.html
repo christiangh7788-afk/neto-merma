@@ -537,7 +537,66 @@ tbody tr:last-child td{border-bottom:none}
 .res-top{border:2px solid var(--orange)}
 .res-top-list{margin:6px 0 0;padding-left:22px;counter-reset:item}
 .res-top-list li{font-size:14px;line-height:1.6;margin-bottom:8px;font-weight:600}
+.res-sim{background:var(--card);border-radius:16px;padding:16px 18px;margin-top:14px;border:1px solid var(--line)}
+.res-sim-h{font-size:15px;font-weight:800;margin-bottom:12px}
+.res-sim-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.res-sim-card{background:var(--surf);border-radius:12px;padding:13px 15px}
+.res-sim-tit{font-size:13.5px;font-weight:800;margin-bottom:9px}
+.res-sim-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line);font-size:13px}
+.res-sim-row span{color:var(--ink);font-weight:600}
+.res-sim-row b{font-variant-numeric:tabular-nums;font-size:15px;font-weight:800}
+.res-sim-now{border-top:none}
+.res-sim-now span{color:var(--muted);font-weight:800;text-transform:uppercase;font-size:11px;letter-spacing:.4px}
+.res-sim-obj{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;margin-top:7px;background:rgba(22,163,74,.10);border-radius:8px;font-size:13px}
+.res-sim-obj span{font-weight:800;color:#16a34a;text-transform:uppercase;font-size:11px;letter-spacing:.4px}
+.res-sim-obj b{color:#16a34a;font-weight:800}
+.res-sim .pos{color:#16a34a}
+.res-sim-note{font-size:11.5px;color:var(--muted);margin-top:11px;line-height:1.4}
+.res-sim-click{cursor:pointer;border-radius:6px;transition:background .12s;margin:0 -6px;padding-left:6px;padding-right:6px}
+.res-sim-click:hover{background:var(--surf-2,rgba(244,121,32,.08))}
+.res-sim-click span{color:var(--blue)}
+.sc-table th,.sc-table td{text-align:center;white-space:nowrap;font-size:12px;padding:6px 8px}
+.sc-table .sc-name{text-align:left}
+.sc-c{font-variant-numeric:tabular-nums}
+.sc-c .pos{color:#16a34a;font-weight:700}.sc-c .neg{font-weight:700}
+.sc-na{color:var(--muted)}
+.sc-sub{font-size:10px;color:var(--muted)}
+.sc-zhead td{background:var(--surf);font-weight:800;text-align:left;color:var(--orange)}
 .res-foot{font-size:11px;color:var(--muted);margin-top:14px;font-style:italic;text-align:center}
+
+.res-hero{display:flex;align-items:center;padding:18px 20px;background:var(--card);border-radius:16px;border-left:6px solid;margin-bottom:14px}
+.res-sem{display:inline-block;color:#fff;font-weight:800;font-size:11.5px;padding:4px 11px;border-radius:20px;margin-bottom:8px}
+.res-titular{font-size:19px;font-weight:800;letter-spacing:-.4px;line-height:1.25}
+.res-when{font-size:11.5px;color:var(--muted);font-weight:700;margin-top:5px}
+.res-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.res-k{background:var(--card);border-radius:12px;padding:13px 16px;display:flex;flex-direction:column;gap:1px}
+.res-k span{font-size:10.5px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.res-k b{font-size:25px;font-weight:800;line-height:1.1}
+.res-k small{font-size:11.5px;color:var(--muted)}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:13px;margin-bottom:14px;align-items:start}
+.res-card{background:var(--card);border-radius:16px;padding:16px 18px}
+.res-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.res-card-name{font-size:15px;font-weight:800}
+.res-card-big{font-size:23px;font-weight:800;letter-spacing:-.5px}
+.res-card-sub{font-size:11.5px;color:var(--muted);font-weight:700;margin-top:1px;margin-bottom:11px}
+.res-points{display:flex;flex-direction:column;gap:7px;margin-bottom:6px}
+.res-point{font-size:13px;line-height:1.45;padding-left:13px;position:relative;color:var(--ink)}
+.res-point::before{content:"";position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--orange)}
+.res-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:12px 0 6px}
+.res-lbl-act{color:var(--orange)}
+.res-chips{display:flex;flex-wrap:wrap;gap:6px}
+.res-chip{font-size:12px;line-height:1.3;background:var(--surf);border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-weight:600}
+.res-chips.act .res-chip{background:rgba(244,121,32,.10);border-color:rgba(244,121,32,.30);color:var(--orange-deep,#c4610f);font-weight:700}
+.res-top{background:var(--card);border-radius:16px;padding:16px 18px;border:2px solid var(--orange)}
+.res-top-h{font-size:15.5px;font-weight:800;margin-bottom:12px}
+.res-top-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.res-prio{display:flex;gap:11px;align-items:flex-start;background:var(--surf);border-radius:11px;padding:11px 13px}
+.res-prio-n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--orange);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+.res-prio-t{font-size:13.5px;font-weight:800;line-height:1.3}
+.res-prio-d{font-size:12px;color:var(--muted);line-height:1.4;margin-top:2px}
+.res-foot{font-size:11px;color:var(--muted);margin-top:14px;font-style:italic;text-align:center}
+.res-empty,.res-err{padding:40px 22px;text-align:center;color:var(--muted);background:var(--surf);border-radius:14px;border:1px dashed var(--line)}
+
 .v-table th,.v-table td{text-align:left}
 .v-table .v-dash{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
 .v-table .v-reg{font-weight:800}
@@ -1982,57 +2041,171 @@ function renderResumen(){
     actualizado:"19/06/2026",
     periodo:"Junio 2026",
     semaforo:"rojo",
-    titular:"La merma de Compañía Veracruz va en -1.20%, casi el doble del objetivo, con Sur y Norte como focos rojos.",
-    kpi:{mermaPct:-1.20, mermaMonto:-1142034, tiendas:63, efePct:-0.531, efeMonto:-240080, obj:-0.65},
+    titular:"La merma de Compañía Veracruz va en -1.20%, casi el doble del objetivo.",
+    kpi:{mermaPct:-1.20, mermaMonto:-1142034, tiendas:63, efePct:-0.531, efeMonto:-240080, obj:-0.65, brechaPct:-0.55},
     merma:{
-      diagnostico:"Junio va en -1.20% (-$1,142,034, 63 tiendas auditadas), muy por encima del objetivo de -0.65%. Veracruz Sur (-1.45%) y Norte (-1.38%) son los focos críticos; Centro (-0.72%) está más cerca pero aún fuera. 31 de 63 tiendas auditadas están fuera de objetivo. El daño se concentra en pocas tiendas con merma extrema: Tuxtlas -10.82% (Revolución Social, -$196K), Huejutla -2.35%, Tuxpan -2.32% y Portuaria -3.97% (Díaz Mirón).",
-      causas:["Tiendas individuales con merma fuera de control que arrastran toda su zona","Recuperación casi nula vía descarga de merma ($7,101, marginal)","Concentración de pérdida en mercados y tiendas de alto volumen"],
-      acciones:["Intervención inmediata en las tiendas con merma >2%: Revolución Social, Díaz Mirón, Huejutla, Tuxpan Américas, Coscomatepec","Auditoría dirigida en Sur y Norte antes del siguiente corte","Revisar por qué la descarga de merma es casi nula y activar ese mecanismo de recuperación"]
+      estado:"rojo", titulo:"-1.20%", sub:"objetivo -0.65% · 31 de 63 tiendas fuera",
+      puntos:[
+        "Sur (-1.45%) y Norte (-1.38%) son los focos rojos; Centro (-0.72%) está más cerca.",
+        "Pocas tiendas concentran el daño: Revolución Social -10.82% (-$196K), Díaz Mirón -3.97%, Huejutla -2.35%, Tuxpan Américas -2.32%."
+      ],
+      causas:["Tiendas puntuales fuera de control arrastran su zona","Descarga de merma casi nula ($7K) como recuperación","Pérdida concentrada en tiendas de alto volumen"],
+      acciones:["Intervenir ya las tiendas con merma >2%","Auditoría dirigida en Sur y Norte","Activar la descarga de merma"]
     },
     efectivo:{
-      diagnostico:"Faltante de -0.531% (-$240,080). Norte es la región con mayor faltante (-$94,623), seguida de Sur (-$82,148). Zonas críticas: Cuenca (-$34,367), Tuxpan (-$31,585) y Costa Esmeralda (-$19,641).",
-      causas:["Faltante recurrente en zonas con racha de varios meses consecutivos","Control de caja débil en tiendas específicas de Norte y Sur"],
-      acciones:["Arqueos sorpresa en las zonas Cuenca y Tuxpan","Revisar control de caja en las tiendas con faltante recurrente"]
+      estado:"amarillo", titulo:"-0.53%", sub:"-$240,080 en faltante de caja",
+      puntos:[
+        "Norte es la región con mayor faltante (-$94,623), seguida de Sur (-$82,148).",
+        "Zonas críticas: Cuenca (-$34,367), Tuxpan (-$31,585), Costa Esmeralda (-$19,641)."
+      ],
+      causas:["Faltante recurrente en zonas con racha de varios meses","Control de caja débil en tiendas puntuales"],
+      acciones:["Arqueos sorpresa en Cuenca y Tuxpan","Revisar control de caja en tiendas con faltante recurrente"]
     },
     conteos:{
-      diagnostico:"Cumplimiento desigual: Centro 95%, Sur 84%, Norte 79%. Norte combina el peor cumplimiento de conteos con la segunda peor merma — menos disciplina de inventario suele anticipar más merma.",
-      acciones:["Exigir a Norte cerrar la brecha de conteos (16 pts debajo de Centro)","Usar el cumplimiento de conteos como predictor temprano de merma"]
+      estado:"amarillo", titulo:"79–95%", sub:"cumplimiento de conteos por región",
+      puntos:[
+        "Centro 95% · Sur 84% · Norte 79%.",
+        "Norte junta el peor cumplimiento con la 2ª peor merma: menos conteos anticipan más merma."
+      ],
+      acciones:["Norte debe cerrar la brecha (16 pts vs Centro)","Usar el cumplimiento como alerta temprana de merma"]
+    },
+    escenarios:{
+      merma:{actual:-1.20, pasos:[
+        {q:"Sin Revolución Social", v:-1.02, ecos:[2869]},
+        {q:"Sin las 3 tiendas más fuertes", v:-0.85, ecos:[2869,1236,7236]},
+        {q:"Sin las 5 más fuertes", v:-0.72, ecos:[2869,1236,7236,1272,3555]}
+      ], obj:-0.65},
+      efectivo:{actual:-0.53, pasos:[
+        {q:"Sin la zona Cuenca", v:-0.47, zonas:["CUENCA"]},
+        {q:"Sin las 3 peores zonas", v:-0.38, zonas:["CUENCA","TUXPAN","COSTA ESMERALDA"]}
+      ]}
     },
     top5:[
-      "Intervención urgente en Revolución Social (Tuxtlas, -10.82%, -$196K): una sola tienda explica el 17% de la merma de la compañía",
-      "Plan de choque en Veracruz Sur (-1.45%), la región más lejos del objetivo",
-      "Auditar Huejutla y Tuxpan (Norte): ambas zonas con merma >2.3%",
-      "Subir el cumplimiento de conteos de Norte (79% → 95%) para frenar merma futura",
-      "Activar la descarga de merma, hoy casi inexistente ($7K), como palanca de recuperación"
+      {t:"Intervenir Revolución Social (Tuxtlas)", d:"-10.82% / -$196K — una sola tienda explica el 17% de la merma total."},
+      {t:"Plan de choque en Veracruz Sur", d:"-1.45%, la región más lejos del objetivo."},
+      {t:"Auditar Huejutla y Tuxpan (Norte)", d:"Ambas zonas con merma >2.3%."},
+      {t:"Subir conteos de Norte (79% → 95%)", d:"Para frenar la merma de los próximos cortes."},
+      {t:"Activar la descarga de merma", d:"Hoy casi inexistente ($7K); es palanca de recuperación."}
     ]
   };
   const esc=t=>(t||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const li=arr=>'<ul class="res-list">'+(arr||[]).map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
-  const sec=(icon,title,d)=>`<div class="res-card"><h3>${icon} ${title}</h3>${d.diagnostico?`<p class="res-diag">${esc(d.diagnostico)}</p>`:''}${d.causas?`<div class="res-sub">Causas probables</div>${li(d.causas)}`:''}${d.acciones?`<div class="res-sub">Acciones</div>${li(d.acciones)}`:''}</div>`;
-  const semClr={verde:'#16a34a',amarillo:'#f59e0b',rojo:'#dc2626'}[R.semaforo]||'#888';
+  const clr=s=>({verde:'#16a34a',amarillo:'#f59e0b',rojo:'#dc2626'}[s]||'#888');
+  const dot=s=>`<span class="res-dot" style="background:${clr(s)}"></span>`;
+  const chips=(arr,cls)=>`<div class="res-chips ${cls||''}">`+(arr||[]).map(x=>`<span class="res-chip">${esc(x)}</span>`).join('')+`</div>`;
+  const block=(icon,name,d)=>`
+    <div class="res-card">
+      <div class="res-card-top">
+        <div class="res-card-name">${icon} ${name}</div>
+        <div class="res-card-big" style="color:${clr(d.estado)}">${esc(d.titulo)}</div>
+      </div>
+      <div class="res-card-sub">${esc(d.sub)}</div>
+      <div class="res-points">${d.puntos.map(p=>`<div class="res-point">${esc(p)}</div>`).join('')}</div>
+      ${d.causas?`<div class="res-lbl">Por qué</div>${chips(d.causas)}`:''}
+      ${d.acciones?`<div class="res-lbl res-lbl-act">Qué hacer</div>${chips(d.acciones,'act')}`:''}
+    </div>`;
+  const semClr=clr(R.semaforo);
   const semTxt={verde:'En control',amarillo:'Atención',rojo:'Crítico'}[R.semaforo]||'';
   el.innerHTML=`
-  <div class="topbar"><span class="tb-note">Resumen ejecutivo de Compañía Veracruz · merma, efectivo y conteos con causas y acciones · <b>actualizado al ${R.actualizado}</b></span></div>
-  <div class="res-out">
-    <div class="res-head" style="border-color:${semClr}">
+  <div class="topbar"><span class="tb-note">Resumen ejecutivo · Compañía Veracruz · <b>actualizado al ${R.actualizado}</b></span></div>
+
+  <div class="res-hero" style="border-color:${semClr}">
+    <div class="res-hero-l">
       <span class="res-sem" style="background:${semClr}">${semTxt}</span>
-      <div><div class="res-titular">${esc(R.titular)}</div><div class="res-when">Compañía Veracruz · ${R.periodo} · última actualización ${R.actualizado}</div></div>
+      <div class="res-titular">${esc(R.titular)}</div>
+      <div class="res-when">Compañía Veracruz · ${R.periodo} · actualizado ${R.actualizado}</div>
     </div>
-    <div class="res-kpis">
-      <div class="res-k"><span>Merma Compañía Veracruz</span><b class="neg">${R.kpi.mermaPct}%</b><small>${peso(R.kpi.mermaMonto)} · ${R.kpi.tiendas} tiendas</small></div>
-      <div class="res-k"><span>Faltante efectivo</span><b class="neg">${R.kpi.efePct}%</b><small>${peso(R.kpi.efeMonto)}</small></div>
-      <div class="res-k"><span>Objetivo merma</span><b>${R.kpi.obj}%</b><small>meta compañía</small></div>
+  </div>
+
+  <div class="res-kpis">
+    <div class="res-k"><span>Merma</span><b class="neg">${R.kpi.mermaPct}%</b><small>${peso(R.kpi.mermaMonto)} · ${R.kpi.tiendas} tiendas</small></div>
+    <div class="res-k"><span>Brecha vs objetivo</span><b class="neg">${R.kpi.brechaPct}pp</b><small>objetivo ${R.kpi.obj}%</small></div>
+    <div class="res-k"><span>Faltante efectivo</span><b class="neg">${R.kpi.efePct.toFixed(2)}%</b><small>${peso(R.kpi.efeMonto)}</small></div>
+  </div>
+
+  <div class="res-grid">
+    ${block('📉','Merma',R.merma)}
+    ${block('💵','Efectivo',R.efectivo)}
+    ${block('📋','Conteos',R.conteos)}
+  </div>
+
+  <div class="res-top">
+    <div class="res-top-h">🎯 Prioridades para llegar al objetivo</div>
+    <div class="res-top-grid">
+      ${R.top5.map((x,i)=>`<div class="res-prio"><div class="res-prio-n">${i+1}</div><div class="res-prio-b"><div class="res-prio-t">${esc(x.t)}</div><div class="res-prio-d">${esc(x.d)}</div></div></div>`).join('')}
     </div>
-    <div class="res-grid">
-      ${sec('📉','Merma',R.merma)}
-      ${sec('💵','Efectivo',R.efectivo)}
-      ${sec('📋','Conteos',R.conteos)}
+  </div>
+  <div class="res-sim">
+    <div class="res-sim-h">📊 ¿A cuánto bajaría si se corrigen las afectaciones más fuertes?</div>
+    <div class="res-sim-grid">
+      <div class="res-sim-card">
+        <div class="res-sim-tit">📉 Merma</div>
+        <div class="res-sim-row res-sim-now"><span>Hoy</span><b class="neg">${R.escenarios.merma.actual.toFixed(2)}%</b></div>
+        ${R.escenarios.merma.pasos.map(p=>{const g=p.v<=R.escenarios.merma.obj;return `<div class="res-sim-row res-sim-click" data-ecos="${p.ecos.join(',')}"><span>${esc(p.q)} ›</span><b class="${g?'pos':'neg'}">${p.v.toFixed(2)}%</b></div>`;}).join('')}
+        <div class="res-sim-obj"><span>Objetivo</span><b>${R.escenarios.merma.obj.toFixed(2)}%</b></div>
+      </div>
+      <div class="res-sim-card">
+        <div class="res-sim-tit">💵 Efectivo</div>
+        <div class="res-sim-row res-sim-now"><span>Hoy</span><b class="neg">${R.escenarios.efectivo.actual.toFixed(2)}%</b></div>
+        ${R.escenarios.efectivo.pasos.map(p=>`<div class="res-sim-row res-sim-click" data-zonas="${esc(p.zonas.join('|'))}"><span>${esc(p.q)} ›</span><b class="neg">${p.v.toFixed(2)}%</b></div>`).join('')}
+      </div>
     </div>
-    <div class="res-card res-top"><h3>🎯 Top 5 acciones para llegar al objetivo</h3><ol class="res-top-list">${R.top5.map(x=>'<li>'+esc(x)+'</li>').join('')}</ol></div>
-    <p class="res-foot">Resumen ejecutivo de Compañía Veracruz · datos al ${R.actualizado} · Las recomendaciones son orientativas y deben validarse con criterio operativo.</p>
-  </div>`;
+    <div class="res-sim-note">Simulación: lleva esas tiendas/zonas a control y recalcula el % del rubro. Muestra el potencial de enfocar los esfuerzos en lo más crítico.</div>
+  </div>
+  <p class="res-foot">Resumen de Compañía Veracruz · datos al ${R.actualizado} · recomendaciones orientativas, validar con criterio operativo.</p>`;
+  el.querySelectorAll('.res-sim-click[data-ecos]').forEach(r=>r.onclick=()=>{const ecos=r.dataset.ecos.split(',').filter(Boolean).map(Number);openSimMermaModal(ecos);});
+  el.querySelectorAll('.res-sim-click[data-zonas]').forEach(r=>r.onclick=()=>{const z=r.dataset.zonas.split('|').filter(Boolean);openSimEfeModal(z);});
 }
-// ============ VALIDACIÓN ============
+
+// Modal: tiendas de un escenario de merma con historial anual de merma y conteos
+function openSimMermaModal(ecos){
+  const stores=ecos.map(e=>S.find(s=>s.eco===e)).filter(Boolean);
+  const mons=MONTHS.filter(m=>m!=='__sel__');
+  const ob=OBJ;
+  const head='<tr><th>Tienda</th>'+mons.map(m=>`<th>${ML[m]}</th>`).join('')+'</tr>';
+  const mermaRows=stores.map(s=>{
+    const cells=mons.map(m=>{const c=s.meses[m];if(!c)return '<td class="sc-c sc-na">—</td>';if(c.apertura)return `<td class="sc-c"><span class="mchip ap">${pct(c.pct)}</span></td>`;const p=pctOf(s,m);return `<td class="sc-c"><span class="${p<ob?'neg':'pos'}">${pct(p)}</span></td>`;}).join('');
+    return `<tr><td class="sc-name"><span class="ctg-store" data-eco="${s.eco}">${s.nombre}</span><span class="ct-sub">ECO ${s.eco} · ${s.zona}</span></td>${cells}</tr>`;
+  }).join('');
+  const contRows=stores.map(s=>{
+    const cells=mons.map(m=>{const c=(s.conteos||{})[m];if(!c)return '<td class="sc-c sc-na">—</td>';const tot=c.n+c.cre+c.can+c.abi+c.otr;const cu=tot?Math.round(c.n/tot*100):0;const cls=cu>=95?'pos':cu>=85?'':'neg';return `<td class="sc-c"><b class="${cls}">${cu}%</b><br><span class="sc-sub">${c.n}/${tot}</span></td>`;}).join('');
+    return `<tr><td class="sc-name"><span class="ctg-store" data-eco="${s.eco}">${s.nombre}</span></td>${cells}</tr>`;
+  }).join('');
+  document.getElementById('modal').innerHTML=`
+    <div class="mhead"><button class="x" onclick="closeModal()">✕</button><h3>Tiendas del escenario</h3><p>${stores.length} tienda${stores.length!==1?'s':''} · historial anual de merma y conteos</p></div>
+    <div class="mbody">
+      <div class="sec-t"><span class="bar-i"></span>Merma por mes (% sobre venta)</div>
+      <div class="ctd-wrap" style="margin-top:4px"><table class="ctd-table sc-table"><thead>${head}</thead><tbody>${mermaRows}</tbody></table></div>
+      <div class="sec-t" style="margin-top:16px"><span class="bar-i"></span>Cumplimiento de conteos por mes</div>
+      <div class="ctd-wrap" style="margin-top:4px"><table class="ctd-table sc-table"><thead>${head}</thead><tbody>${contRows}</tbody></table></div>
+    </div>`;
+  document.getElementById('modal').classList.add('wide');
+  document.getElementById('modalBg').classList.add('open');
+  document.body.style.overflow='hidden';
+  document.querySelectorAll('#modal .ctg-store[data-eco]').forEach(r=>r.onclick=()=>openStore(+r.dataset.eco));
+}
+// Modal: zonas de un escenario de efectivo con faltante por mes y tiendas
+function openSimEfeModal(zonas){
+  const mons=MONTHS.filter(m=>m!=='__sel__');
+  const fa=(s,m)=>(s.falt&&s.falt[m]!==undefined)?(s.falt[m]||0):0;
+  const head='<tr><th>Tienda</th>'+mons.map(m=>`<th>${ML[m]}</th>`).join('')+'<th>Total</th></tr>';
+  let body='';
+  zonas.forEach(z=>{
+    const stores=S.filter(s=>s.zona===z);
+    body+=`<tr class="sc-zhead"><td colspan="${mons.length+2}">${z} · ${shortReg(stores[0]?stores[0].region:'')}</td></tr>`;
+    const rows=stores.map(s=>{let tot=0;const cells=mons.map(m=>{const f=fa(s,m);tot+=f;return f<0?`<td class="sc-c"><span class="neg">${peso(f)}</span></td>`:'<td class="sc-c sc-na">—</td>';}).join('');return {s,tot,cells};}).filter(x=>x.tot<0).sort((a,b)=>a.tot-b.tot);
+    rows.forEach(r=>{body+=`<tr><td class="sc-name"><span class="ctg-store" data-eco="${r.s.eco}">${r.s.nombre}</span><span class="ct-sub">ECO ${r.s.eco}</span></td>${r.cells}<td class="sc-c"><b class="neg">${peso(r.tot)}</b></td></tr>`;});
+  });
+  document.getElementById('modal').innerHTML=`
+    <div class="mhead"><button class="x" onclick="closeModal()">✕</button><h3>Zonas del escenario</h3><p>${zonas.join(' · ')} · faltante de efectivo por mes</p></div>
+    <div class="mbody">
+      <div class="sec-t"><span class="bar-i"></span>Faltante de efectivo por tienda y mes</div>
+      <div class="ctd-wrap" style="margin-top:4px"><table class="ctd-table sc-table"><thead>${head}</thead><tbody>${body}</tbody></table></div>
+    </div>`;
+  document.getElementById('modal').classList.add('wide');
+  document.getElementById('modalBg').classList.add('open');
+  document.body.style.overflow='hidden';
+  document.querySelectorAll('#modal .ctg-store[data-eco]').forEach(r=>r.onclick=()=>openStore(+r.dataset.eco));
+}// ============ VALIDACIÓN ============
 let vMonth=null;
 function vCompute(month){
   const out={};
