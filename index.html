@@ -210,6 +210,10 @@ main{padding-top:24px}
 .kpi .stripe::after{content:"";position:absolute;inset:0;left:0;width:26px;opacity:.10;background:inherit;filter:blur(14px)}
 .s-navy{background:var(--navy3)} .s-orange{background:var(--orange)} .s-green{background:var(--green)} .s-red{background:var(--red)} .s-amber{background:var(--amber)}
 .pos{color:var(--green)} .neg{color:var(--red)}
+.azul{color:var(--blue)!important}
+.mchip.azul{color:var(--blue);background:var(--blue-soft,#e7f0fd);padding:2px 7px;border-radius:6px}
+.mcell .mv.azul{color:var(--blue)}
+.mcell .mmonto.azul,.mcell .mventa.azul{color:var(--blue);opacity:.85}
 
 /* ====== Cards ====== */
 .card{
@@ -567,6 +571,7 @@ tbody tr:last-child td{border-bottom:none}
 .res-sim-obj b{color:#16a34a;font-weight:800}
 .res-sim .pos{color:#16a34a}
 .res-sim-note{font-size:11.5px;color:var(--muted);margin-top:11px;line-height:1.4}
+.res-aper-nota{font-size:11.5px;color:#1e40af;background:var(--blue-soft,#e7f0fd);border:1px solid #bcd4f5;border-radius:9px;padding:9px 11px;margin-top:10px;line-height:1.45}
 .res-sim-click{cursor:pointer;border-radius:6px;transition:background .12s;margin:0 -6px;padding-left:6px;padding-right:6px}
 .res-sim-click:hover{background:var(--surf-2,rgba(244,121,32,.08))}
 .res-sim-click span{color:var(--blue)}
@@ -791,7 +796,11 @@ const colPct=v=>v<curObj()?'neg':'pos';
 /* venta base para el % de efectivo (venta tienda del reporte de faltantes; fallback a venta de merma) */
 function efVentaOf(s,m){const v=s.efVenta&&s.efVenta[m];if(v!==undefined&&v>0)return v;const c=s.meses[m];return c?c.venta:0;}
 /* % de una tienda en el mes m; si WF, SUMA SIMPLE: %merma + %efectivo (cada uno con su propia venta). */
-function pctOf(s,m){const c=s.meses[m];if(!c)return null;if(c.apertura)return c.pct;const mp=c.venta?c.monto/c.venta:0;if(!WF)return mp;const f=(s.falt&&s.falt[m])||0;const ev=efVentaOf(s,m);return mp+(ev?f/ev:0);}
+// Detecta tiendas en apertura o sin venta real (% absurdo por venta ~0). Para fines estadísticos se neutralizan al objetivo.
+function isAperturaProblema(s,m){const c=s.meses[m];if(!c)return false;if(c.apertura)return true;const v=c.venta||0;const p=v?Math.abs(c.monto/v):0;return v<50000 && p>0.5;}
+function pctOf(s,m){const c=s.meses[m];if(!c)return null;if(isAperturaProblema(s,m))return curObj();const mp=c.venta?c.monto/c.venta:0;if(!WF)return mp;const f=(s.falt&&s.falt[m])||0;const ev=efVentaOf(s,m);return mp+(ev?f/ev:0);}
+// Color: azul si es apertura/sin-venta (problema), rojo si fuera de objetivo, verde si dentro
+function colPctC(s,m){if(isAperturaProblema(s,m))return 'azul';const p=pctOf(s,m);return p<curObj()?'neg':'pos';}
 function toggleWF(){WF=!WF;document.getElementById('objTxt').textContent=pct(curObj());rerenderAll();}
 function wfToggleBtn(){return `<button class="ft-toggle ${WF?'on':''}" onclick="toggleWF()">${WF?'Con faltante de efectivo':'Sin faltante de efectivo'}</button>`;}
 function setData(d){
@@ -805,14 +814,14 @@ setData(FALLBACK_DATA);
 // ---- consolidation helpers ----
 /* Aperturas: cuentan en n (tiendas) pero su monto NO entra al total $ ni al %.
    Si WF (global), suma el faltante de efectivo del mes al monto antes del %. */
-function consol(stores,m){let mMonto=0,mVenta=0,fFalt=0,fVenta=0,n=0;stores.forEach(s=>{const c=s.meses[m];if(!c)return;n++;if(!c.apertura){mMonto+=c.monto;mVenta+=c.venta;const f=(s.falt&&s.falt[m])||0;fFalt+=f;fVenta+=efVentaOf(s,m);}});
+function consol(stores,m){let mMonto=0,mVenta=0,fFalt=0,fVenta=0,n=0;stores.forEach(s=>{const c=s.meses[m];if(!c)return;n++;if(!isAperturaProblema(s,m)){mMonto+=c.monto;mVenta+=c.venta;const f=(s.falt&&s.falt[m])||0;fFalt+=f;fVenta+=efVentaOf(s,m);}});
   const mp=mVenta?mMonto/mVenta:null;const fp=(WF&&fVenta)?fFalt/fVenta:0;
   const pct=(mp===null)?null:(mp+(WF?fp:0));
   return{monto:mMonto+(WF?fFalt:0),venta:mVenta,pct:pct,n:n};}
 /* Resultado de una tienda EN el mes m (no el último global). Respeta WF. */
 function resAt(s,m){const c=s.meses[m];if(!c)return null;const p=pctOf(s,m);const f=WF?((s.falt&&s.falt[m])||0):0;return {mes:m,pct:p,monto:c.monto+(c.apertura?0:f),apertura:c.apertura};}
 /* Estado dentro/fuera/apertura/sin para el mes seleccionado. Respeta WF y objetivo dinámico. */
-function statusAt(stores,m){const ob=curObj();let aud=0,fuera=0,dentro=0,ap=0,sin=0;stores.forEach(s=>{const c=s.meses[m];if(!c){sin++;return;}if(c.apertura){ap++;dentro++;return;}aud++;const p=pctOf(s,m);if(p<ob)fuera++;else dentro++;});return{total:stores.length,aud:aud,ap:ap,fuera:fuera,dentro:dentro,sin:sin,conRes:aud+ap};}
+function statusAt(stores,m){const ob=curObj();let aud=0,fuera=0,dentro=0,ap=0,sin=0;stores.forEach(s=>{const c=s.meses[m];if(!c){sin++;return;}if(isAperturaProblema(s,m)){ap++;dentro++;return;}aud++;const p=pctOf(s,m);if(p<ob)fuera++;else dentro++;});return{total:stores.length,aud:aud,ap:ap,fuera:fuera,dentro:dentro,sin:sin,conRes:aud+ap};}
 /* Último resultado de la tienda respetando WF (recalcula el % del último mes con dato). */
 function ultOf(s){if(!s.ultimo)return null;const m=s.ultimo.mes;return resAt(s,m);}
 function statusOf(stores){const ob=curObj();const a=stores.filter(s=>s.ultimo);const f=a.filter(s=>{const u=ultOf(s);return u&&!u.apertura&&u.pct<ob;});return{total:stores.length,aud:a.length,sin:stores.length-a.length,fuera:f.length,dentro:a.length-f.length};}
@@ -1071,7 +1080,7 @@ function fillTie(){
   document.getElementById('fcount').textContent=rows.length+' tiendas';
   const tb=document.querySelector('#tTbl tbody');
   tb.innerHTML=rows.map(s=>{
-    const cells=MONTHS.map(m=>{const c=s.meses[m];if(!c)return`<td style="text-align:center"><span class="mchip na">—</span></td>`;if(c.apertura)return`<td style="text-align:center"><span class="mchip ap" title="Apertura · tienda nueva">${pct(c.pct)}</span></td>`;const p=pctOf(s,m);return`<td style="text-align:center"><span class="mchip ${colPct(p)}">${pct(p)}</span></td>`;}).join('');
+    const cells=MONTHS.map(m=>{const c=s.meses[m];if(!c)return`<td style="text-align:center"><span class="mchip na">—</span></td>`;if(isAperturaProblema(s,m))return`<td style="text-align:center"><span class="mchip azul" title="Apertura/sin venta · merma neutralizada al objetivo (revisar)">${pct(curObj())}</span></td>`;const p=pctOf(s,m);return`<td style="text-align:center"><span class="mchip ${colPct(p)}">${pct(p)}</span></td>`;}).join('');
     const u=ultOf(s);
     const ult=u?`<span class="pill ${u.apertura?'pill-blue':(u.pct<ob?'pill-red':'pill-green')}">${ML[u.mes]} · ${u.apertura?'Apertura':pct(u.pct)}</span>`:`<span class="pill pill-gray">Sin auditoría</span>`;
     const mf=s.meses_fuera>0?`<span class="pill pill-red">${s.meses_fuera}</span>`:`<span class="pill pill-green">0</span>`;
@@ -1336,9 +1345,9 @@ function renderModal(){
     const f=(s.falt&&s.falt[m])||0;
     let v, montoLine='', ventaLine='';
     if(!c)v=`<div class="mv" style="color:#c2c9d4">—</div>`;
-    else if(c.apertura){v=`<div class="mv ap" title="Apertura">${pct(c.pct)}</div>`;
-      montoLine=`<div class="mmonto">${peso(c.monto)}</div>`;
-      ventaLine=`<div class="mventa" title="Venta del periodo">${peso(c.venta)}</div>`;}
+    else if(isAperturaProblema(s,m)){v=`<div class="mv azul" title="Apertura o sin venta · merma neutralizada al objetivo para estadística (revisar tienda)">${pct(curObj())}</div>`;
+      montoLine=`<div class="mmonto azul" title="Merma real en pesos">${peso(c.monto)}</div>`;
+      ventaLine=`<div class="mventa azul" title="Venta del periodo (muy baja por apertura)">${peso(c.venta)}</div>`;}
     else {const p=pctOf(s,m);v=`<div class="mv ${colPct(p)}">${pct(p)}</div>`;
       montoLine=`<div class="mmonto ${c.monto<0?'neg':''}" title="Merma en pesos">${peso(c.monto)}</div>`;
       ventaLine=`<div class="mventa" title="Venta del periodo">${peso(c.venta)}</div>`;}
@@ -2103,6 +2112,7 @@ function resRender(a,data){
     <p class="res-foot">Análisis generado por Claude (IA) sobre los datos de ${ML[resMonth]} · Las recomendaciones son orientativas y deben validarse con criterio operativo.</p>`;
 }
 let resSimScope='all'; // 'all' | 'Veracruz Centro' | 'Veracruz Norte' | 'Veracruz Sur'
+function escHtml(t){return (t||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 // Calcula escenario de MERMA (junio) para un alcance (compañía o región)
 function calcMermaScenario(scope){
@@ -2147,32 +2157,44 @@ function resScopeSelector(){
   return `<div class="rseg res-scope-seg" id="resScopeSeg">${opts.map(([v,l])=>`<button class="${resSimScope===v?'on':''}" data-scope="${v}">${l}</button>`).join('')}</div>`;
 }
 
+// Nota de tiendas en apertura / sin venta (merma neutralizada al objetivo)
+function aperturaNota(){
+  let probs=[];
+  S.forEach(s=>{MONTHS.forEach(m=>{if(isAperturaProblema(s,m)){probs.push({nombre:s.nombre,zona:s.zona,mes:m,monto:s.meses[m].monto,venta:s.meses[m].venta});}});});
+  if(resSimScope!=='all')probs=probs.filter(p=>S.find(s=>s.nombre===p.nombre&&s.region===resSimScope));
+  if(!probs.length)return '';
+  const uniq=[...new Set(probs.map(p=>p.nombre))];
+  const lista=uniq.slice(0,6).join(', ')+(uniq.length>6?` y ${uniq.length-6} más`:'');
+  return `<div class="res-aper-nota"><b>⚠ ${uniq.length} tienda${uniq.length!==1?'s':''} en apertura o sin venta</b> (${escHtml(lista)}): su % de merma sale distorsionado por venta casi nula, así que <b>se muestra en azul y se neutraliza al objetivo (${pct(curObj())})</b> para no afectar la estadística. Hay que revisarlas porque sí tienen un tema operativo, pero no son merma real comparable.</div>`;
+}
+
 // Renderiza solo la sección de simulación (re-render al cambiar región)
 function renderSimSection(){
   const m=calcMermaScenario(resSimScope), e=calcEfeScenario(resSimScope);
   const scopeLbl=resSimScope==='all'?'Compañía':shortReg(resSimScope);
-  const mPasos=m.pasos.map(p=>{const g=p.v<=m.obj;return `<div class="res-sim-row res-sim-click" data-mecos="${p.ecos.join(',')}"><span>${esc(p.q)} ›</span><b class="${g?'pos':'neg'}">${p.v.toFixed(2)}%</b></div>`;}).join('');
-  const mMeta=m.meta?`<div class="res-sim-row res-sim-click res-sim-meta" data-mecos="${m.meta.ecos.join(',')}"><span>${esc(m.meta.q)} ›</span><b class="${m.meta.v<=m.obj?'pos':'neg'}">${m.meta.v.toFixed(2)}%</b></div>`:'<div class="res-sim-row" style="opacity:.6"><span>Ya está en objetivo</span><b class="pos">✓</b></div>';
-  const ePasos=e.pasos.map(p=>{const g=p.v<=e.obj;return `<div class="res-sim-row res-sim-click" data-eecos="${p.ecos.join(',')}"><span>${esc(p.q)} ›</span><b class="${g?'pos':'neg'}">${p.v.toFixed(2)}%</b></div>`;}).join('');
-  const eMeta=e.meta?`<div class="res-sim-row res-sim-click res-sim-meta" data-eecos="${e.meta.ecos.join(',')}"><span>${esc(e.meta.q)} ›</span><b class="${e.meta.v<=e.obj?'pos':'neg'}">${e.meta.v.toFixed(2)}%</b></div>`:'<div class="res-sim-row" style="opacity:.6"><span>Ya está en objetivo</span><b class="pos">✓</b></div>';
+  const mPasos=m.pasos.map(p=>{const g=p.v<=m.obj;return `<div class="res-sim-row res-sim-click" data-mecos="${p.ecos.join(',')}"><span>${escHtml(p.q)} ›</span><b class="${g?'pos':'neg'}">${p.v.toFixed(2)}%</b></div>`;}).join('');
+  const mMeta=m.meta?`<div class="res-sim-row res-sim-click res-sim-meta" data-mecos="${m.meta.ecos.join(',')}"><span>${escHtml(m.meta.q)} ›</span><b class="${m.meta.v<=m.obj?'pos':'neg'}">${m.meta.v.toFixed(2)}%</b></div>`:'<div class="res-sim-row" style="opacity:.6"><span>Ya está en objetivo</span><b class="pos">✓</b></div>';
+  const ePasos=e.pasos.map(p=>{const g=p.v<=e.obj;return `<div class="res-sim-row res-sim-click" data-eecos="${p.ecos.join(',')}"><span>${escHtml(p.q)} ›</span><b class="${g?'pos':'neg'}">${p.v.toFixed(2)}%</b></div>`;}).join('');
+  const eMeta=e.meta?`<div class="res-sim-row res-sim-click res-sim-meta" data-eecos="${e.meta.ecos.join(',')}"><span>${escHtml(e.meta.q)} ›</span><b class="${e.meta.v<=e.obj?'pos':'neg'}">${e.meta.v.toFixed(2)}%</b></div>`:'<div class="res-sim-row" style="opacity:.6"><span>Ya está en objetivo</span><b class="pos">✓</b></div>';
   return `
     <div class="res-sim-h">📊 ¿A cuánto bajaría si se corrigen las afectaciones más fuertes?</div>
     <div class="res-scope-bar"><span class="res-scope-lbl">Filtrar:</span>${resScopeSelector()}</div>
     <div class="res-sim-grid">
       <div class="res-sim-card">
-        <div class="res-sim-tit">📉 Merma · ${esc(scopeLbl)}</div>
+        <div class="res-sim-tit">📉 Merma · ${escHtml(scopeLbl)}</div>
         <div class="res-sim-row res-sim-now"><span>Hoy</span><b class="${m.actual<=m.obj?'pos':'neg'}">${m.actual.toFixed(2)}%</b></div>
         ${mPasos}${mMeta}
         <div class="res-sim-obj"><span>Objetivo</span><b>${m.obj.toFixed(2)}%</b></div>
       </div>
       <div class="res-sim-card">
-        <div class="res-sim-tit">💵 Efectivo · ${esc(scopeLbl)}</div>
+        <div class="res-sim-tit">💵 Efectivo · ${escHtml(scopeLbl)}</div>
         <div class="res-sim-row res-sim-now"><span>Hoy</span><b class="${e.actual<=e.obj?'pos':'neg'}">${e.actual.toFixed(2)}%</b></div>
         ${ePasos}${eMeta}
         <div class="res-sim-obj"><span>Objetivo</span><b>${e.obj.toFixed(2)}%</b></div>
       </div>
     </div>
-    <div class="res-sim-note">Simulación: lleva esas tiendas a control y recalcula el % del rubro para ${esc(scopeLbl)}. Toca una línea para ver las tiendas. El número de tiendas se ajusta a la región seleccionada.</div>`;
+    <div class="res-sim-note">Simulación: lleva esas tiendas a control y recalcula el % del rubro para ${escHtml(scopeLbl)}. Toca una línea para ver las tiendas. El número de tiendas se ajusta a la región seleccionada.</div>
+    ${aperturaNota()}`;
 }
 
 // Vincula los eventos de la sección de simulación
