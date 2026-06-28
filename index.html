@@ -547,6 +547,11 @@ tbody tr:last-child td{border-bottom:none}
 .res-top-list li{font-size:14px;line-height:1.6;margin-bottom:8px;font-weight:600}
 .res-sim{background:var(--card);border-radius:16px;padding:16px 18px;margin-top:14px;border:1px solid var(--line)}
 .res-sim-h{font-size:15px;font-weight:800;margin-bottom:12px}
+.res-scope-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.res-scope-lbl{font-size:12px;font-weight:700;color:var(--muted)}
+.res-scope-seg{background:#eef1f6}
+.res-scope-seg button{color:#64748b}
+.res-scope-seg button.on{background:#fff;color:var(--orange-deep);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .res-sim-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
 .res-sim-card{background:var(--surf);border-radius:12px;padding:13px 15px}
 .res-sim-tit{font-size:13.5px;font-weight:800;margin-bottom:9px}
@@ -2097,6 +2102,89 @@ function resRender(a,data){
     </div>
     <p class="res-foot">Análisis generado por Claude (IA) sobre los datos de ${ML[resMonth]} · Las recomendaciones son orientativas y deben validarse con criterio operativo.</p>`;
 }
+let resSimScope='all'; // 'all' | 'Veracruz Centro' | 'Veracruz Norte' | 'Veracruz Sur'
+
+// Calcula escenario de MERMA (junio) para un alcance (compañía o región)
+function calcMermaScenario(scope){
+  const obj=OBJ*100; // fracción a %
+  let st=S.filter(s=>{const c=s.meses.junio;return c&&!c.apertura&&c.venta;});
+  if(scope!=='all')st=st.filter(s=>s.region===scope);
+  const arr=st.map(s=>({eco:s.eco,monto:s.meses.junio.monto,venta:s.meses.junio.venta})).sort((a,b)=>(a.monto/a.venta)-(b.monto/b.venta));
+  const TM=arr.reduce((a,s)=>a+s.monto,0),TV=arr.reduce((a,s)=>a+s.venta,0);
+  const actual=TV?TM/TV*100:0;
+  const pctExcl=n=>{let m=0,v=0;arr.slice(n).forEach(s=>{m+=s.monto;v+=s.venta;});return v?m/v*100:0;};
+  const pasos=[];
+  if(arr.length>=1)pasos.push({q:'Sin la tienda más fuerte',v:pctExcl(1),ecos:arr.slice(0,1).map(s=>s.eco)});
+  if(arr.length>=3)pasos.push({q:'Sin las 3 más fuertes',v:pctExcl(3),ecos:arr.slice(0,3).map(s=>s.eco)});
+  if(arr.length>=5)pasos.push({q:'Sin las 5 más fuertes',v:pctExcl(5),ecos:arr.slice(0,5).map(s=>s.eco)});
+  // N tiendas para llegar al objetivo
+  let meta=null;
+  for(let n=1;n<=arr.length;n++){if(pctExcl(n)>=obj){meta={q:`Trabajando las ${n} tiendas más fuertes`,v:pctExcl(n),ecos:arr.slice(0,n).map(s=>s.eco)};break;}}
+  return {actual,pasos,obj,meta};
+}
+
+// Calcula escenario de EFECTIVO (junio) para un alcance
+function calcEfeScenario(scope){
+  const obj=-0.10;
+  let st=S.filter(s=>{const v=(s.efVenta&&s.efVenta.junio)||0;return v>0;});
+  if(scope!=='all')st=st.filter(s=>s.region===scope);
+  const arr=st.map(s=>({eco:s.eco,falt:(s.falt&&s.falt.junio)||0,venta:s.efVenta.junio})).sort((a,b)=>a.falt-b.falt);
+  const TF=arr.reduce((a,s)=>a+s.falt,0),TV=arr.reduce((a,s)=>a+s.venta,0);
+  const actual=TV?TF/TV*100:0;
+  const pctExcl=n=>{let f=0,v=0;arr.slice(n).forEach(s=>{f+=s.falt;v+=s.venta;});return v?f/v*100:0;};
+  const pasos=[];
+  if(arr.length>=1)pasos.push({q:'Sin la tienda más fuerte',v:pctExcl(1),ecos:arr.slice(0,1).map(s=>s.eco)});
+  if(arr.length>=3)pasos.push({q:'Sin las 3 más fuertes',v:pctExcl(3),ecos:arr.slice(0,3).map(s=>s.eco)});
+  if(arr.length>=5)pasos.push({q:'Sin las 5 más fuertes',v:pctExcl(5),ecos:arr.slice(0,5).map(s=>s.eco)});
+  let meta=null;
+  for(let n=1;n<=arr.length;n++){if(pctExcl(n)>=obj){meta={q:`Trabajando las ${n} tiendas más fuertes`,v:pctExcl(n),ecos:arr.slice(0,n).map(s=>s.eco)};break;}}
+  return {actual,pasos,obj,meta};
+}
+
+// Renderiza el selector de región
+function resScopeSelector(){
+  const opts=[['all','Compañía'],['Veracruz Centro','Centro'],['Veracruz Norte','Norte'],['Veracruz Sur','Sur']];
+  return `<div class="rseg res-scope-seg" id="resScopeSeg">${opts.map(([v,l])=>`<button class="${resSimScope===v?'on':''}" data-scope="${v}">${l}</button>`).join('')}</div>`;
+}
+
+// Renderiza solo la sección de simulación (re-render al cambiar región)
+function renderSimSection(){
+  const m=calcMermaScenario(resSimScope), e=calcEfeScenario(resSimScope);
+  const scopeLbl=resSimScope==='all'?'Compañía':shortReg(resSimScope);
+  const mPasos=m.pasos.map(p=>{const g=p.v<=m.obj;return `<div class="res-sim-row res-sim-click" data-mecos="${p.ecos.join(',')}"><span>${esc(p.q)} ›</span><b class="${g?'pos':'neg'}">${p.v.toFixed(2)}%</b></div>`;}).join('');
+  const mMeta=m.meta?`<div class="res-sim-row res-sim-click res-sim-meta" data-mecos="${m.meta.ecos.join(',')}"><span>${esc(m.meta.q)} ›</span><b class="${m.meta.v<=m.obj?'pos':'neg'}">${m.meta.v.toFixed(2)}%</b></div>`:'<div class="res-sim-row" style="opacity:.6"><span>Ya está en objetivo</span><b class="pos">✓</b></div>';
+  const ePasos=e.pasos.map(p=>{const g=p.v<=e.obj;return `<div class="res-sim-row res-sim-click" data-eecos="${p.ecos.join(',')}"><span>${esc(p.q)} ›</span><b class="${g?'pos':'neg'}">${p.v.toFixed(2)}%</b></div>`;}).join('');
+  const eMeta=e.meta?`<div class="res-sim-row res-sim-click res-sim-meta" data-eecos="${e.meta.ecos.join(',')}"><span>${esc(e.meta.q)} ›</span><b class="${e.meta.v<=e.obj?'pos':'neg'}">${e.meta.v.toFixed(2)}%</b></div>`:'<div class="res-sim-row" style="opacity:.6"><span>Ya está en objetivo</span><b class="pos">✓</b></div>';
+  return `
+    <div class="res-sim-h">📊 ¿A cuánto bajaría si se corrigen las afectaciones más fuertes?</div>
+    <div class="res-scope-bar"><span class="res-scope-lbl">Filtrar:</span>${resScopeSelector()}</div>
+    <div class="res-sim-grid">
+      <div class="res-sim-card">
+        <div class="res-sim-tit">📉 Merma · ${esc(scopeLbl)}</div>
+        <div class="res-sim-row res-sim-now"><span>Hoy</span><b class="${m.actual<=m.obj?'pos':'neg'}">${m.actual.toFixed(2)}%</b></div>
+        ${mPasos}${mMeta}
+        <div class="res-sim-obj"><span>Objetivo</span><b>${m.obj.toFixed(2)}%</b></div>
+      </div>
+      <div class="res-sim-card">
+        <div class="res-sim-tit">💵 Efectivo · ${esc(scopeLbl)}</div>
+        <div class="res-sim-row res-sim-now"><span>Hoy</span><b class="${e.actual<=e.obj?'pos':'neg'}">${e.actual.toFixed(2)}%</b></div>
+        ${ePasos}${eMeta}
+        <div class="res-sim-obj"><span>Objetivo</span><b>${e.obj.toFixed(2)}%</b></div>
+      </div>
+    </div>
+    <div class="res-sim-note">Simulación: lleva esas tiendas a control y recalcula el % del rubro para ${esc(scopeLbl)}. Toca una línea para ver las tiendas. El número de tiendas se ajusta a la región seleccionada.</div>`;
+}
+
+// Vincula los eventos de la sección de simulación
+function bindSimSection(){
+  const cont=document.getElementById('resSimSection');
+  if(!cont)return;
+  cont.querySelectorAll('.res-sim-click[data-mecos]').forEach(r=>r.onclick=()=>{const ecos=r.dataset.mecos.split(',').filter(Boolean).map(Number);openSimMermaModal(ecos);});
+  cont.querySelectorAll('.res-sim-click[data-eecos]').forEach(r=>r.onclick=()=>{const ecos=r.dataset.eecos.split(',').filter(Boolean).map(Number);openSimEfeTiendasModal(ecos);});
+  const seg=document.getElementById('resScopeSeg');
+  if(seg)seg.querySelectorAll('button').forEach(b=>b.onclick=()=>{resSimScope=b.dataset.scope;cont.innerHTML=renderSimSection();bindSimSection();});
+}
+
 function renderResumen(){
   const el=document.getElementById('v-resumen');
   // ====== RESUMEN EJECUTIVO INCRUSTADO (generado en cada actualización) ======
@@ -2198,29 +2286,9 @@ function renderResumen(){
       ${R.top5.map((x,i)=>`<div class="res-prio"><div class="res-prio-n">${i+1}</div><div class="res-prio-b"><div class="res-prio-t">${esc(x.t)}</div><div class="res-prio-d">${esc(x.d)}</div></div></div>`).join('')}
     </div>
   </div>
-  <div class="res-sim">
-    <div class="res-sim-h">📊 ¿A cuánto bajaría si se corrigen las afectaciones más fuertes?</div>
-    <div class="res-sim-grid">
-      <div class="res-sim-card">
-        <div class="res-sim-tit">📉 Merma</div>
-        <div class="res-sim-row res-sim-now"><span>Hoy</span><b class="neg">${R.escenarios.merma.actual.toFixed(2)}%</b></div>
-        ${R.escenarios.merma.pasos.map(p=>{const g=p.v<=R.escenarios.merma.obj;return `<div class="res-sim-row res-sim-click${p.meta?' res-sim-meta':''}" data-ecos="${p.ecos.join(',')}"><span>${esc(p.q)} ›</span><b class="${g?'pos':'neg'}">${p.v.toFixed(2)}%</b></div>`;}).join('')}
-        <div class="res-sim-obj"><span>Objetivo</span><b>${R.escenarios.merma.obj.toFixed(2)}%</b></div>
-      </div>
-      <div class="res-sim-card">
-        <div class="res-sim-tit">💵 Efectivo</div>
-        <div class="res-sim-row res-sim-now"><span>Hoy</span><b class="neg">${R.escenarios.efectivo.actual.toFixed(2)}%</b></div>
-        ${R.escenarios.efectivo.pasos.map(p=>`<div class="res-sim-row res-sim-click" data-zonas="${esc(p.zonas.join('|'))}"><span>${esc(p.q)} ›</span><b class="neg">${p.v.toFixed(2)}%</b></div>`).join('')}
-        ${R.escenarios.efectivo.metaTiendas?`<div class="res-sim-row res-sim-click res-sim-meta" data-efeecos="${R.escenarios.efectivo.metaTiendas.ecos.join(',')}"><span>${esc(R.escenarios.efectivo.metaTiendas.q)} ›</span><b class="${R.escenarios.efectivo.metaTiendas.v<=R.escenarios.efectivo.obj?'pos':'neg'}">${R.escenarios.efectivo.metaTiendas.v.toFixed(2)}%</b></div>`:''}
-        ${R.escenarios.efectivo.obj!==undefined?`<div class="res-sim-obj"><span>Objetivo</span><b>${R.escenarios.efectivo.obj.toFixed(2)}%</b></div>`:''}
-      </div>
-    </div>
-    <div class="res-sim-note">Simulación: lleva esas tiendas/zonas a control y recalcula el % del rubro. Muestra el potencial de enfocar los esfuerzos en lo más crítico.</div>
-  </div>
+  <div class="res-sim" id="resSimSection">${renderSimSection()}</div>
   <p class="res-foot">Resumen de Compañía Veracruz · datos al ${R.actualizado} · recomendaciones orientativas, validar con criterio operativo.</p>`;
-  el.querySelectorAll('.res-sim-click[data-ecos]').forEach(r=>r.onclick=()=>{const ecos=r.dataset.ecos.split(',').filter(Boolean).map(Number);openSimMermaModal(ecos);});
-  el.querySelectorAll('.res-sim-click[data-zonas]').forEach(r=>r.onclick=()=>{const z=r.dataset.zonas.split('|').filter(Boolean);openSimEfeModal(z);});
-  el.querySelectorAll('.res-sim-click[data-efeecos]').forEach(r=>r.onclick=()=>{const ecos=r.dataset.efeecos.split(',').filter(Boolean).map(Number);openSimEfeTiendasModal(ecos);});
+  bindSimSection();
 }
 
 // Modal: tiendas de un escenario de merma con historial anual de merma y conteos
