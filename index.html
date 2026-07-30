@@ -302,6 +302,7 @@ main{padding-top:24px}
 .zstore:last-child{border-bottom:none}
 .zstore .nm{flex:1;color:var(--ink);font-weight:600;transition:color .12s}
 .zstore .pp{font-weight:800;min-width:64px;text-align:right}
+.zstore .pp-m{font-size:11px;color:var(--muted);font-weight:700;margin-right:8px;background:var(--chip);padding:2px 7px;border-radius:6px}
 .pp.ap{color:var(--blue)}
 
 /* ====== Pills ====== */
@@ -983,14 +984,14 @@ function pctZonaFalt(s,m){return pctOf(s,m);}
 function renderReg(){
   const el=document.getElementById('v-reg');
   const grad={'Veracruz Centro':'linear-gradient(135deg,#13294b,#274c8a)','Veracruz Norte':'linear-gradient(135deg,#1e3a6b,#3566b0)','Veracruz Sur':'linear-gradient(135deg,#0f2440,#1f4f6b)'};
-  let h=`<div class="topbar">${monthSelect()}${wfToggleBtn()}<span class="tb-note">${isMulti()?'Suma de <b>'+selLabel()+'</b>':'Resultados de <b>'+ML[SELM]+'</b>'}${WF?' · incluye faltante de efectivo':''}</span></div><div class="regrid">`;
+  let h=`<div class="topbar">${monthSelect()}${regResSelect()}${wfToggleBtn()}<span class="tb-note">${regResMode==='ultimo'?'Último resultado disponible <b>por tienda</b> (puede variar de mes según su ciclo de auditoría)':(isMulti()?'Suma de <b>'+selLabel()+'</b>':'Resultados de <b>'+ML[SELM]+'</b>')}${WF?' · incluye faltante de efectivo':''}</span></div><div class="regrid">`;
   DATA.regions.forEach((r,rIdx)=>{
-    const cur=consol(byReg(r),SELM),st=statusAt(byReg(r),SELM);
+    const cur=consolReg(byReg(r)),st=statusAtReg(byReg(r));
     const fTot=WF?faltSum(byReg(r),SELM):0;
     h+=`<div class="regcard">
       <div class="top" style="background:${grad[r]||'linear-gradient(135deg,#13294b,#274c8a)'}">
         <h3>${r}</h3><div class="rp">${pctS(cur.pct)}</div>
-        <div class="rsub">${peso(cur.monto)} · ${cur.n} tiendas en ${ML[SELM]}</div>
+        <div class="rsub">${peso(cur.monto)} · ${cur.n} tiendas ${regResMode==='ultimo'?'(último resultado c/u)':'en '+ML[SELM]}</div>
         ${WF?`<div class="rfalt" onclick="showFaltList('${r}')" title="Ver tiendas">incluye faltante de efectivo ${peso(fTot)} <span class="rfalt-i">ⓘ</span></div>`:''}
       </div>
       <div class="body">
@@ -1001,10 +1002,10 @@ function renderReg(){
           ${st.sin?`<span class="pill pill-gray">${st.sin} sin audit.</span>`:''}
         </div>
         <div class="zona-acc">`;
-    zonasOf(r).map(z=>({z,za:consol(byZona(r,z),SELM)}))
+    zonasOf(r).map(z=>({z,za:consolReg(byZona(r,z))}))
       .sort((a,b)=>{const pa=a.za.pct,pb=b.za.pct;if(pa===null&&pb===null)return 0;if(pa===null)return 1;if(pb===null)return -1;return pa-pb;})
       .forEach(({z,za},zi)=>{
-      const zs=statusAt(byZona(r,z),SELM);
+      const zs=statusAtReg(byZona(r,z));
       const zpTxt = za.pct!==null?pct(za.pct):'s/d';
       const zid='zd-'+(rIdx)+'-'+zi;
       h+=`<div class="zrow" data-r="${r}" data-z="${z}" data-zid="${zid}">
@@ -1019,20 +1020,23 @@ function renderReg(){
   h+='</div>';
   el.innerHTML=h;
   bindMonthSelect();
+  const rrseg=document.getElementById('regResSeg');if(rrseg)rrseg.querySelectorAll('button').forEach(b=>b.onclick=()=>{regResMode=b.dataset.v;renderReg();});
   el.querySelectorAll('.zrow').forEach(row=>{
     row.onclick=()=>{
       const r=row.dataset.r,z=row.dataset.z;
       const det=document.getElementById(row.dataset.zid);
       const open=det.classList.contains('open');
       if(!open && !det.dataset.filled){
-        const list=byZona(r,z).slice().sort((a,b)=>{const pa=pctZonaFalt(a,SELM),pb=pctZonaFalt(b,SELM);return (pa===null?1:pa)-(pb===null?1:pb);});
+        const list=byZona(r,z).slice().sort((a,b)=>{const ma=regEffMonth(a),mb=regEffMonth(b);const pa=ma?pctZonaFalt(a,ma):null,pb=mb?pctZonaFalt(b,mb):null;return (pa===null?1:pa)-(pb===null?1:pb);});
         det.innerHTML=list.map(s=>{
-          const c=s.meses[SELM];
+          const m=regEffMonth(s);
+          const c=m?s.meses[m]:null;
           let pp;
           if(!c)pp=`<span class="pp" style="color:#c2c9d4">s/d</span>`;
           else if(c.apertura)pp=`<span class="pp ap">${pct(c.pct)}</span>`;
-          else {const p=pctZonaFalt(s,SELM);pp=`<span class="pp ${colPct(p)}">${pct(p)}</span>`;}
-          return `<div class="zstore" data-eco="${s.eco}"><span class="nm">${s.nombre}${cerradaBadge(s)}</span>${s.meses_fuera?`<span class="pill pill-red">${s.meses_fuera}×</span>`:''}${pp}</div>`;
+          else {const p=pctZonaFalt(s,m);pp=`<span class="pp ${colPct(p)}">${pct(p)}</span>`;}
+          const mTag = (regResMode==='ultimo'&&m)?`<span class="pp-m">${ML[m]}</span>`:'';
+          return `<div class="zstore" data-eco="${s.eco}"><span class="nm">${s.nombre}${cerradaBadge(s)}</span>${s.meses_fuera?`<span class="pill pill-red">${s.meses_fuera}×</span>`:''}${mTag}${pp}</div>`;
         }).join('');
         det.querySelectorAll('.zstore').forEach(zs=>zs.onclick=e=>{e.stopPropagation();openStore(+zs.dataset.eco);});
         det.dataset.filled='1';
@@ -1721,6 +1725,21 @@ let conteoWeek='all';
 let ctOpen=null;
 let ctSort='cumpl';
 let ctDir='asc';
+let regResMode='mes';
+function regEffMonth(s){return regResMode==='ultimo'?(s.ultimo?s.ultimo.mes:null):SELM;}
+function consolReg(stores){
+  let mMonto=0,mVenta=0,fFalt=0,fVenta=0,n=0;
+  stores.forEach(s=>{const m=regEffMonth(s);if(!m)return;const c=s.meses[m];if(!c)return;n++;mMonto+=c.monto;mVenta+=c.venta;if(!isAperturaProblema(s,m)){const f=(s.falt&&s.falt[m])||0;fFalt+=f;fVenta+=efVentaOf(s,m);}});
+  const mp=mVenta?mMonto/mVenta:null;const fp=(WF&&fVenta)?fFalt/fVenta:0;
+  const pct=(mp===null)?null:(mp+(WF?fp:0));
+  return{monto:mMonto+(WF?fFalt:0),venta:mVenta,pct:pct,n:n};
+}
+function statusAtReg(stores){
+  const ob=curObj();let aud=0,fuera=0,dentro=0,ap=0,sin=0;
+  stores.forEach(s=>{const m=regEffMonth(s);const c=m?s.meses[m]:null;if(!c){sin++;return;}if(isAperturaProblema(s,m)){ap++;dentro++;return;}aud++;const p=pctOf(s,m);if(p<ob)fuera++;else dentro++;});
+  return{total:stores.length,aud:aud,ap:ap,fuera:fuera,dentro:dentro,sin:sin,conRes:aud+ap};
+}
+function regResSelect(){return `<div class="mselect" style="gap:11px"><label>Resultado</label><div class="rseg" id="regResSeg"><button class="${regResMode==='mes'?'on':''}" data-v="mes">Mes actual</button><button class="${regResMode==='ultimo'?'on':''}" data-v="ultimo">Último resultado</button></div></div>`;}
 let ctView='resumen';
 let ctTipo='ciclicos';
 function ctSub(monthObj){if(!monthObj)return monthObj;if(ctTipo==='manuales')return monthObj.manuales||{n:0,cre:0,can:0,abi:0,otr:0,falt:0,sob:0,det:[],n0:0,wk:{}};return monthObj.ciclicos||monthObj;}
