@@ -2355,198 +2355,195 @@ function bindSimSection(){
 
 function renderResumen(){
   const el=document.getElementById('v-resumen');
-  // ====== RESUMEN EJECUTIVO INCRUSTADO (generado en cada actualización) ======
-  const R={
-    actualizado:"20/07/2026",
-    periodo:"Junio 2026 (cierre) · Julio 2026 (preliminar)",
-    semaforo:"rojo",
-    titular:"La merma de Compañía Veracruz va en -1.02% en julio (69 tiendas auditadas), con junio cerrado en -0.97%; el faltante de efectivo mejora a -0.52% en julio (corte 19/07); los conteos de tienda van al 79% de cierre en julio (semanas 28+29 definitivas + 30 en curso al 25/07), con Centro como la región más rezagada.",
-    kpi:{mermaPct:-1.02, mermaMonto:-1300971, tiendas:69, efePct:-0.52, efeMonto:-706895, obj:-0.65, brechaPct:-0.37},
-    merma:{
-      estado:"rojo", titulo:"-0.97%", sub:"cierre junio · objetivo -0.65% · preliminar julio -1.02% (69 de 239 tiendas; incluye 2 tiendas de cierre con inventario final)",
-      puntos:[
-        "Sur (-1.13%) es la región más alejada del objetivo; Centro (-0.97%) y Norte (-0.84%) también están fuera.",
-        "68 de 132 tiendas auditadas en junio quedaron fuera de objetivo (10 aperturas nuevas en el mes)."
-      ],
-      causas:["Coscomatepec y Chocaman (ya cerradas) reportan inventario de cierre por -$305K","Centro (-1.30%) y Sur (-1.12%) siguen siendo las regiones más alejadas; Norte se deteriora a -0.77%","Tihuatlán pasó de sobrante a merma real de -$62.8K tras la aclaración del corte"],
-      acciones:["Intervenir ya Revolución Social (Tuxtlas) y Huejutla","Confirmar que la mejora de julio se sostenga al cerrar más tiendas","Auditoría dirigida en Sur, la región con peor cierre en junio"]
-    },
-    efectivo:{
-      estado:"rojo", titulo:"-0.52%", sub:"julio parcial al corte 19/07 · junio cerró en -0.09% (objetivo -0.06%)",
-      puntos:[
-        "Centro (-0.83%) es la región con más faltante; Norte -0.49%, Sur -0.31% (la menos mala).",
-        "Zona Xalapa se dispara a -4.00% (-$185,584), casi toda por una sola tienda: Boca Negra Abasto (ECO 1796, apertura de junio) con -$176,403."
-      ],
-      causas:["Una tienda de apertura reciente (Boca Negra Abasto) concentra ~25% del faltante total del mes","Corte a poco más de mitad de mes (19/07); el % puede seguir moviéndose","Junio había cerrado fuera de objetivo (-0.09% vs -0.06%)"],
-      acciones:["Arqueo y revisión inmediata en Boca Negra Abasto (ECO 1796)","Seguimiento a Chicontepec (Huejutla) y Tortuga Puente Moreno (Puerto)","Vigilar Centro, la región más alejada del objetivo"]
-    },
-    conteos:{
-      estado:"amarillo", titulo:"71–86%", sub:"cierre de conteos en tienda por región · julio a la fecha (semanas 28+29 definitivas + 30 en curso al 25/07)",
-      puntos:[
-        "Norte tiene el mejor cierre (86%); Centro es la región más rezagada (71%), con Sur en medio (82%).",
-        "Norte combina el mejor cumplimiento de conteos con la mejor merma de julio (-0.08%): la relación se sostiene."
-      ],
-      acciones:["Centro debe cerrar la brecha de conteos (15 pts vs Norte)","Usar el cumplimiento como alerta temprana de merma"]
-    },
-    escenarios:{
-      merma:{actual:-1.25, pasos:[
-        {q:"Sin Tampico Mercado", v:-1.11, ecos:[875]},
-        {q:"Sin las 3 tiendas más fuertes", v:-0.94, ecos:[875,7236,2869]},
-        {q:"Sin las 5 más fuertes", v:-0.87, ecos:[875,7236,2869,1272,515]},
-        {q:"Trabajando las 17 tiendas más fuertes", v:-0.63, meta:true, ecos:[875,7236,2869,1272,515,3555,1559,2868,1597,1236,8953,2945,1056,1009,8927,8940,834]}
-      ], obj:-0.65},
-      efectivo:{actual:-0.49, obj:-0.06, pasos:[
-        {q:"Sin la zona Huejutla", v:-0.42, zonas:["HUEJUTLA"]},
-        {q:"Sin las 3 peores zonas", v:-0.25, zonas:["HUEJUTLA","TAMPICO NORTE","HEROICA"]}
-      ], metaTiendas:{q:"Trabajando las 38 tiendas más fuertes", v:-0.06, ecos:[959,721,1545,259,266,735,8961,515,9040,671,1272,834,1145,478,9097,932,1411,673,1426,1576,2945,1244,9094,1174,9037,1307,875,3555,502,443,1247,254,1412,9029,8963,207,9019,1552]}}
-    },
-    top5:[
-      {t:"Revisar Boca Negra Abasto, tienda de apertura con faltante desproporcionado", d:"Julio va en -0.52% (objetivo -0.06%); esta sola tienda concentra -$176K, ~25% del total."},
-      {t:"Intervenir Revolución Social y Huejutla", d:"Las dos tiendas con mayor pérdida de merma en junio: -$180K y -$122K."},
-      {t:"Plan de choque en Veracruz Sur", d:"-1.13% en junio, la región más lejos del objetivo de merma."},
-      {t:"Aclarar el inventario de cierre en Coscomatepec y Chocaman", d:"Ambas ya cerradas, aportan -$305K al -1.02% de julio; hay que finiquitar el inventario."},
-      {t:"Cerrar la brecha de conteos en Centro", d:"71% de cierre en tienda vs 86% de Norte; Centro también tiene la peor merma de julio (-1.30%)."}
-    ]
-  };
-  const esc=t=>(t||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const clr=s=>({verde:'#16a34a',amarillo:'#f59e0b',rojo:'#dc2626'}[s]||'#888');
-  const dot=s=>`<span class="res-dot" style="background:${clr(s)}"></span>`;
-  const chips=(arr,cls)=>`<div class="res-chips ${cls||''}">`+(arr||[]).map(x=>`<span class="res-chip">${esc(x)}</span>`).join('')+`</div>`;
-  const block=(icon,name,d)=>`
-    <div class="res-card">
-      <div class="res-card-top">
-        <div class="res-card-name">${icon} ${name}</div>
-        <div class="res-card-big" style="color:${clr(d.estado)}">${esc(d.titulo)}</div>
+  const m=SELM;
+  const active=S.filter(s=>!s.cerrada);
+  const evalStores=active.filter(s=>{const c=s.meses[m];return c&&c.venta&&!isAperturaProblema(s,m);});
+
+  // ---- Merma pura (fracción, sin WF) ----
+  let mo=0,ve=0;
+  evalStores.forEach(s=>{mo+=s.meses[m].monto;ve+=s.meses[m].venta;});
+  const mermaFrac=ve?mo/ve:null;
+
+  // ---- Efectivo puro (fracción) ----
+  let ff=0,fv=0;
+  active.forEach(s=>{if(!isAperturaProblema(s,m)){const f=(s.falt&&s.falt[m])||0;const ev=efVentaOf(s,m);ff+=f;fv+=ev;}});
+  const efeFrac=fv?ff/fv:null;
+
+  // ---- Combinado (igual a consol) ----
+  const cur=consol(S,m);
+  const st=statusAt(S,m);
+
+  // ---- Por región: merma ----
+  const regions=[...new Set(active.map(s=>s.region))];
+  const regMerma=regions.map(r=>{
+    let mo2=0,ve2=0,n2=0;
+    active.filter(s=>s.region===r).forEach(s=>{const c=s.meses[m];if(c&&c.venta&&!isAperturaProblema(s,m)){mo2+=c.monto;ve2+=c.venta;n2++;}});
+    return{region:r,frac:ve2?mo2/ve2:null,n:n2,monto:mo2};
+  }).sort((a,b)=>(a.frac===null?1:a.frac)-(b.frac===null?1:b.frac));
+
+  // ---- Por región: efectivo ----
+  const regEfe=regions.map(r=>{
+    let ff2=0,fv2=0;
+    active.filter(s=>s.region===r).forEach(s=>{if(!isAperturaProblema(s,m)){const f=(s.falt&&s.falt[m])||0;const ev=efVentaOf(s,m);ff2+=f;fv2+=ev;}});
+    return{region:r,frac:fv2?ff2/fv2:null,monto:ff2};
+  }).sort((a,b)=>(a.frac===null?1:a.frac)-(b.frac===null?1:b.frac));
+
+  // ---- Por región: conteos (ctd tienda) ----
+  const regConteos=regions.map(r=>{
+    let n1=0,tot=0;
+    active.filter(s=>s.region===r).forEach(s=>{const c=s.ctd&&s.ctd[m];if(c){n1+=c.n;tot+=c.n+c.cre+c.abi+c.otr;}});
+    return{region:r,pct:tot?100*n1/tot:null};
+  }).sort((a,b)=>(b.pct===null?-1:b.pct)-(a.pct===null?-1:a.pct));
+  let cn=0,ctot=0;
+  active.forEach(s=>{const c=s.ctd&&s.ctd[m];if(c){cn+=c.n;ctot+=c.n+c.cre+c.abi+c.otr;}});
+  const conteosPct=ctot?100*cn/ctot:null;
+
+  // ---- Top 5 peores tiendas del mes ----
+  const worst=evalStores.slice().sort((a,b)=>a.meses[m].monto-b.meses[m].monto);
+  const top5=worst.slice(0,5);
+
+  // ---- Brisa total del mes ----
+  let brisaTot=0;
+  active.forEach(s=>{brisaTot+=(s.brisa&&s.brisa[m])||0;});
+
+  // ---- Escenario: ¿qué pasa si resolvemos las N peores? ----
+  function scenario(n){
+    const rm=new Set(worst.slice(0,n).map(s=>s.eco));
+    let mo3=0,ve3=0;
+    evalStores.forEach(s=>{if(!rm.has(s.eco)){mo3+=s.meses[m].monto;ve3+=s.meses[m].venta;}});
+    return ve3?mo3/ve3:null;
+  }
+  const esc3=scenario(3),esc5=scenario(5);
+
+  // ---- Semáforo (según merma pura vs objetivo -0.65%) ----
+  const semaforo=mermaFrac===null?'amarillo':(mermaFrac<OBJ?'rojo':'verde');
+  const semClr=({verde:'#16a34a',amarillo:'#f59e0b',rojo:'#dc2626'})[semaforo];
+  const semTxt={verde:'En control',amarillo:'Sin datos suficientes',rojo:'Crítico'}[semaforo];
+
+  // ---- Narrativa auto-generada ----
+  const peorReg=regMerma[0],mejorReg=regMerma[regMerma.length-1];
+  const peorRegEfe=regEfe[0];
+  const peorRegConteos=regConteos[regConteos.length-1],mejorRegConteos=regConteos[0];
+  const titular=`La merma consolidada de Compañía Veracruz va en <b>${pctS(mermaFrac)}</b> en ${ML[m]}`+
+    (mermaFrac!==null?` (${evalStores.length} tiendas evaluadas)`:'')+
+    `, contra un objetivo de ${pct(OBJ)}`+
+    (peorReg.frac!==null?`. ${peorReg.region} es la región más alejada del objetivo (${pctS(peorReg.frac)}), mientras ${mejorReg.region} es la mejor (${pctS(mejorReg.frac)})`:'')+
+    (efeFrac!==null?`. El faltante de efectivo del mes es de ${pctS(efeFrac)} (${peso(ff)})`:'')+
+    (conteosPct!==null?`. Los conteos de tienda van al ${conteosPct.toFixed(0)}% de cierre`:'')+'.';
+
+  const causasMerma=[];
+  if(peorReg.frac!==null)causasMerma.push(`${peorReg.region} concentra la peor merma del mes: ${pctS(peorReg.frac)} (${peso(peorReg.monto)}, ${peorReg.n} tiendas)`);
+  if(top5.length)causasMerma.push(`Las 5 tiendas más críticas suman ${peso(top5.reduce((a,s)=>a+s.meses[m].monto,0))} de pérdida`);
+  if(worst.length)causasMerma.push(`${st.fuera} de ${st.aud} tiendas auditadas quedaron fuera de objetivo (${st.aud?(100*st.fuera/st.aud).toFixed(0):0}%)`);
+
+  const accionesMerma=[];
+  if(top5[0])accionesMerma.push(`Intervenir de inmediato ${top5[0].nombre} (ECO ${top5[0].eco}, ${pctS(top5[0].meses[m].pct/100)})`);
+  if(esc3!==null)accionesMerma.push(`Resolviendo las 3 tiendas más graves, la compañía pasaría de ${pctS(mermaFrac)} a ${pctS(esc3)}`);
+  if(peorReg.region)accionesMerma.push(`Auditoría dirigida en ${peorReg.region}, la región más alejada del objetivo`);
+
+  const causasEfe=[];
+  if(peorRegEfe.frac!==null)causasEfe.push(`${peorRegEfe.region} tiene el mayor faltante relativo: ${pctS(peorRegEfe.frac)} (${peso(peorRegEfe.monto)})`);
+  const accionesEfe=[`Arqueo y validación en campo de las tiendas con mayor faltante absoluto del mes`,`Seguimiento puntual en ${peorRegEfe.region||'—'}`];
+
+  const esc=t=>(t==null?'':String(t)).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const chips=(arr)=>`<div class="res-chips">`+(arr||[]).map(x=>`<span class="res-chip">${esc(x)}</span>`).join('')+`</div>`;
+  const barRow=(label,frac,extra)=>{
+    const v=frac===null?0:Math.abs(frac)*100;
+    const w=Math.min(100,v*22);
+    const neg=frac!==null&&frac<OBJ;
+    return `<div class="res-point" style="display:flex;align-items:center;gap:10px;">
+      <div style="width:120px;flex:0 0 120px;font-size:12px;">${esc(label)}</div>
+      <div style="flex:1;background:var(--line,#e6eaf1);border-radius:4px;height:14px;position:relative;overflow:hidden;">
+        <div style="width:${w}%;height:100%;background:${neg?'#e23d3d':'#1f9d6b'};border-radius:4px;"></div>
       </div>
-      <div class="res-card-sub">${esc(d.sub)}</div>
-      <div class="res-points">${d.puntos.map(p=>`<div class="res-point">${esc(p)}</div>`).join('')}</div>
-      ${d.causas?`<div class="res-lbl">Por qué</div>${chips(d.causas)}`:''}
-      ${d.acciones?`<div class="res-lbl res-lbl-act">Qué hacer</div>${chips(d.acciones,'act')}`:''}
+      <div style="width:70px;flex:0 0 70px;text-align:right;font-weight:700;color:${neg?'#e23d3d':'#1f9d6b'};font-size:12px;">${pctS(frac)}</div>
+      ${extra?`<div style="width:60px;flex:0 0 60px;text-align:right;font-size:11px;color:var(--muted,#6b7688);">${esc(extra)}</div>`:''}
     </div>`;
-  const semClr=clr(R.semaforo);
-  const semTxt={verde:'En control',amarillo:'Atención',rojo:'Crítico'}[R.semaforo]||'';
+  };
+
   el.innerHTML=`
-  <div class="topbar"><span class="tb-note">Resumen ejecutivo · Compañía Veracruz · <b>actualizado al ${R.actualizado}</b></span></div>
+  <div class="topbar">${monthSelect()}${wfToggleBtn()}<span class="tb-note">Resumen ejecutivo · <b>${ML[m]}</b>${WF?' · incluye faltante de efectivo':''}</span></div>
+  <div class="kpis">
+    <div class="kpi"><div class="stripe ${semaforo==='rojo'?'s-red':(semaforo==='verde'?'s-green':'s-amber')}"></div><div class="lab">Estado general</div><div class="val" style="color:${semClr}">${semTxt}</div><div class="sub">${ML[m]}</div></div>
+    <div class="kpi"><div class="stripe ${mermaFrac===null?'s-navy':(mermaFrac<OBJ?'s-red':'s-green')}"></div><div class="lab">Merma consolidada</div><div class="val ${mermaFrac===null?'':colPct(mermaFrac)}">${pctS(mermaFrac)}</div><div class="sub">vs objetivo ${pct(OBJ)} · ${peso(mo)}</div></div>
+    <div class="kpi"><div class="stripe s-red"></div><div class="lab">Tiendas fuera de objetivo</div><div class="val neg">${st.fuera}</div><div class="sub">de ${st.aud} auditadas</div></div>
+    <div class="kpi"><div class="stripe s-green"></div><div class="lab">Tiendas dentro de objetivo</div><div class="val pos">${st.dentro}</div><div class="sub">incluye ${st.ap} apertura(s)</div></div>
+    <div class="kpi"><div class="stripe s-amber"></div><div class="lab">Sin auditoría</div><div class="val" style="color:var(--amber)">${st.sin}</div><div class="sub">no aparecen este mes</div></div>
+    <div class="kpi"><div class="stripe ${efeFrac===null?'s-navy':'s-orange'}"></div><div class="lab">Faltante de efectivo</div><div class="val" style="color:${efeFrac!==null&&efeFrac<0?'#e23d3d':'inherit'}">${pctS(efeFrac)}</div><div class="sub">${peso(ff)}</div></div>
+    <div class="kpi"><div class="stripe s-orange"></div><div class="lab">Aclaraciones Brisa</div><div class="val" style="color:var(--orange)">${peso(brisaTot)}</div><div class="sub">${ML[m]}</div></div>
+  </div>
 
-  <div class="res-hero" style="border-color:${semClr}">
-    <div class="res-hero-l">
-      <span class="res-sem" style="background:${semClr}">${semTxt}</span>
-      <div class="res-titular">${esc(R.titular)}</div>
-      <div class="res-when">Compañía Veracruz · ${R.periodo} · actualizado ${R.actualizado}</div>
+  <div class="res-card" style="margin-bottom:14px;">
+    <div class="res-card-top"><div class="res-card-name">📋 Resumen del mes</div></div>
+    <div class="res-card-sub">${titular}</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2><span class="bar-i"></span>Merma por región · ${ML[m]}</h2>
+      <p class="csub">% consolidado sin efectivo · objetivo ${pct(OBJ)}</p>
+      ${regMerma.map(r=>barRow(r.region.replace('Veracruz ',''),r.frac,r.n+' tiendas')).join('')}
+    </div>
+    <div class="card">
+      <h2><span class="bar-i"></span>Faltante de efectivo por región · ${ML[m]}</h2>
+      <p class="csub">% sobre venta efectivo</p>
+      ${regEfe.map(r=>barRow(r.region.replace('Veracruz ',''),r.frac)).join('')}
     </div>
   </div>
 
-  <div class="res-kpis">
-    <div class="res-k"><span>Merma</span><b class="neg">${R.kpi.mermaPct}%</b><small>${peso(R.kpi.mermaMonto)} · ${R.kpi.tiendas} tiendas</small></div>
-    <div class="res-k"><span>Brecha vs objetivo</span><b class="neg">${R.kpi.brechaPct}pp</b><small>objetivo ${R.kpi.obj}%</small></div>
-    <div class="res-k"><span>Faltante efectivo</span><b class="neg">${R.kpi.efePct.toFixed(2)}%</b><small>${peso(R.kpi.efeMonto)}</small></div>
+  <div class="card" style="margin-top:14px;">
+    <h2><span class="bar-i"></span>Cierre de conteos (tienda) por región · ${ML[m]}</h2>
+    <p class="csub">% de conteos cerrados</p>
+    ${regConteos.map(r=>`<div class="res-point" style="display:flex;align-items:center;gap:10px;">
+      <div style="width:120px;flex:0 0 120px;font-size:12px;">${esc(r.region.replace('Veracruz ',''))}</div>
+      <div style="flex:1;background:var(--line,#e6eaf1);border-radius:4px;height:14px;position:relative;overflow:hidden;">
+        <div style="width:${r.pct||0}%;height:100%;background:#2e75b6;border-radius:4px;"></div>
+      </div>
+      <div style="width:60px;flex:0 0 60px;text-align:right;font-weight:700;font-size:12px;">${r.pct===null?'s/d':r.pct.toFixed(0)+'%'}</div>
+    </div>`).join('')}
+    <div class="res-point" style="margin-top:6px;font-weight:700;">Compañía: ${conteosPct===null?'s/d':conteosPct.toFixed(0)+'%'}</div>
   </div>
 
-  <div class="res-grid">
-    ${block('📉','Merma',R.merma)}
-    ${block('💵','Efectivo',R.efectivo)}
-    ${block('📋','Conteos',R.conteos)}
-  </div>
-
-  <div class="res-top">
-    <div class="res-top-h">🎯 Prioridades para llegar al objetivo</div>
-    <div class="res-top-grid">
-      ${R.top5.map((x,i)=>`<div class="res-prio"><div class="res-prio-n">${i+1}</div><div class="res-prio-b"><div class="res-prio-t">${esc(x.t)}</div><div class="res-prio-d">${esc(x.d)}</div></div></div>`).join('')}
+  <div class="grid2" style="margin-top:14px;">
+    <div class="res-card">
+      <div class="res-card-top"><div class="res-card-name">📉 Merma — Por qué</div></div>
+      ${chips(causasMerma)}
+      <div class="res-lbl res-lbl-act">Qué hacer</div>
+      ${chips(accionesMerma)}
+    </div>
+    <div class="res-card">
+      <div class="res-card-top"><div class="res-card-name">💵 Efectivo — Por qué</div></div>
+      ${chips(causasEfe)}
+      <div class="res-lbl res-lbl-act">Qué hacer</div>
+      ${chips(accionesEfe)}
     </div>
   </div>
-  <div class="res-sim" id="resSimSection">${renderSimSection()}</div>
-  <p class="res-foot">Resumen de Compañía Veracruz · datos al ${R.actualizado} · recomendaciones orientativas, validar con criterio operativo.</p>`;
-  bindSimSection();
+
+  <div class="card" style="margin-top:14px;">
+    <h2><span class="bar-i"></span>Top 5 tiendas más críticas · ${ML[m]}</h2>
+    <p class="csub">Excluye aperturas / venta atípica</p>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="text-align:left;color:var(--muted,#6b7688);border-bottom:1px solid var(--line,#e6eaf1);">
+        <th style="padding:6px 4px;">ECO</th><th>Tienda</th><th>Región</th><th style="text-align:right;">%</th><th style="text-align:right;">Monto</th>
+      </tr>
+      ${top5.map(s=>`<tr style="border-bottom:1px solid var(--line,#e6eaf1);">
+        <td style="padding:6px 4px;">${s.eco}</td><td>${esc(s.nombre)}</td><td>${esc(s.region.replace('Veracruz ',''))}</td>
+        <td style="text-align:right;color:#e23d3d;font-weight:700;">${pctS(s.meses[m].pct/100)}</td>
+        <td style="text-align:right;">${peso(s.meses[m].monto)}</td>
+      </tr>`).join('')}
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:14px;">
+    <h2><span class="bar-i"></span>Escenario: ¿qué pasaría si resolvemos las tiendas más críticas?</h2>
+    <div class="res-point">Actual: <b>${pctS(mermaFrac)}</b></div>
+    <div class="res-point">Sin las 3 tiendas más graves: <b>${pctS(esc3)}</b></div>
+    <div class="res-point">Sin las 5 tiendas más graves: <b>${pctS(esc5)}</b></div>
+  </div>
+  `;
+  bindMonthSelect();
 }
 
-// Modal: tiendas de un escenario de merma con historial anual de merma y conteos
-function openSimMermaModal(ecos){
-  const stores=ecos.map(e=>S.find(s=>s.eco===e)).filter(Boolean);
-  const mons=MONTHS.filter(m=>m!=='__sel__');
-  const ob=OBJ;
-  const head='<tr><th>Tienda</th>'+mons.map(m=>`<th>${ML[m]}</th>`).join('')+'</tr>';
-  const mermaRows=stores.map(s=>{
-    const cells=mons.map(m=>{const c=s.meses[m];if(!c)return '<td class="sc-c sc-na">—</td>';if(c.apertura)return `<td class="sc-c"><span class="mchip ap">${pct(c.pct)}</span></td>`;const p=pctOf(s,m);return `<td class="sc-c"><span class="${p<ob?'neg':'pos'}">${pct(p)}</span></td>`;}).join('');
-    return `<tr><td class="sc-name"><span class="ctg-store" data-eco="${s.eco}">${s.nombre}${cerradaBadge(s)}</span><span class="ct-sub">ECO ${s.eco} · ${s.zona}</span></td>${cells}</tr>`;
-  }).join('');
-  const contRows=stores.map(s=>{
-    const cells=mons.map(m=>{const c=(s.conteos||{})[m];if(!c)return '<td class="sc-c sc-na">—</td>';const tot=c.n+c.cre+c.abi+c.otr;const cu=tot?Math.round(c.n/tot*100):0;const cls=cu>=95?'pos':cu>=85?'':'neg';return `<td class="sc-c"><b class="${cls}">${cu}%</b><br><span class="sc-sub">${c.n}/${tot}</span></td>`;}).join('');
-    return `<tr><td class="sc-name"><span class="ctg-store" data-eco="${s.eco}">${s.nombre}</span></td>${cells}</tr>`;
-  }).join('');
-  document.getElementById('modal').innerHTML=`
-    <div class="mhead"><button class="x" onclick="closeModal()">✕</button><h3>Tiendas del escenario</h3><p>${stores.length} tienda${stores.length!==1?'s':''} · historial anual de merma y conteos</p></div>
-    <div class="mbody">
-      <div class="sec-t"><span class="bar-i"></span>Merma por mes (% sobre venta)</div>
-      <div class="ctd-wrap" style="margin-top:4px"><table class="ctd-table sc-table"><thead>${head}</thead><tbody>${mermaRows}</tbody></table></div>
-      <div class="sec-t" style="margin-top:16px"><span class="bar-i"></span>Cumplimiento de conteos por mes</div>
-      <div class="ctd-wrap" style="margin-top:4px"><table class="ctd-table sc-table"><thead>${head}</thead><tbody>${contRows}</tbody></table></div>
-    </div>`;
-  document.getElementById('modal').classList.add('wide');
-  document.getElementById('modalBg').classList.add('open');
-  document.body.style.overflow='hidden';
-  document.querySelectorAll('#modal .ctg-store[data-eco]').forEach(r=>r.onclick=()=>openStore(+r.dataset.eco));
-}
-// Modal: zonas de un escenario de efectivo con faltante por mes y tiendas
-function openSimEfeModal(zonas){
-  const mons=MONTHS.filter(m=>m!=='__sel__');
-  const fa=(s,m)=>(s.falt&&s.falt[m]!==undefined)?(s.falt[m]||0):0;
-  const head='<tr><th>Tienda</th>'+mons.map(m=>`<th>${ML[m]}</th>`).join('')+'<th>Total</th></tr>';
-  let body='';
-  zonas.forEach(z=>{
-    const stores=S.filter(s=>s.zona===z);
-    body+=`<tr class="sc-zhead"><td colspan="${mons.length+2}">${z} · ${zonaCoach(z)} · ${shortReg(stores[0]?stores[0].region:'')}</td></tr>`;
-    const rows=stores.map(s=>{let tot=0;const cells=mons.map(m=>{const f=fa(s,m);tot+=f;return f<0?`<td class="sc-c"><span class="neg">${peso(f)}</span></td>`:'<td class="sc-c sc-na">—</td>';}).join('');return {s,tot,cells};}).filter(x=>x.tot<0).sort((a,b)=>a.tot-b.tot);
-    rows.forEach(r=>{body+=`<tr><td class="sc-name"><span class="ctg-store" data-eco="${r.s.eco}">${r.s.nombre}</span><span class="ct-sub">ECO ${r.s.eco}</span></td>${r.cells}<td class="sc-c"><b class="neg">${peso(r.tot)}</b></td></tr>`;});
-  });
-  document.getElementById('modal').innerHTML=`
-    <div class="mhead"><button class="x" onclick="closeModal()">✕</button><h3>Zonas del escenario</h3><p>${zonas.join(' · ')} · faltante de efectivo por mes</p></div>
-    <div class="mbody">
-      <div class="sec-t"><span class="bar-i"></span>Faltante de efectivo por tienda y mes</div>
-      <div class="ctd-wrap" style="margin-top:4px"><table class="ctd-table sc-table"><thead>${head}</thead><tbody>${body}</tbody></table></div>
-    </div>`;
-  document.getElementById('modal').classList.add('wide');
-  document.getElementById('modalBg').classList.add('open');
-  document.body.style.overflow='hidden';
-  document.querySelectorAll('#modal .ctg-store[data-eco]').forEach(r=>r.onclick=()=>openStore(+r.dataset.eco));
-}
-// Modal: tiendas de un escenario de EFECTIVO con faltante mensual (ordenado por faltante de junio)
-function openSimEfeTiendasModal(ecos){
-  const stores=ecos.map(e=>S.find(s=>s.eco===e)).filter(Boolean);
-  const MES=LATEST;
-  const mons=MONTHS.filter(m=>m!=='__sel__');
-  const fa=(s,m)=>(s.falt&&s.falt[m]!==undefined)?(s.falt[m]||0):0;
-  const head='<tr><th>Tienda</th>'+mons.map(m=>`<th>${ML[m]}</th>`).join('')+`<th>Faltante ${ML[MES]}</th><th>% ${ML[MES]}</th></tr>`;
-  const rows=stores.map(s=>{
-    const cells=mons.map(m=>{const f=fa(s,m);return f<0?`<td class="sc-c"><span class="neg">${peso(f)}</span></td>`:'<td class="sc-c sc-na">—</td>';}).join('');
-    const fj=fa(s,MES); const vj=(s.efVenta&&s.efVenta[MES])||0; const pj=vj?fj/vj*100:0;
-    return `<tr><td class="sc-name"><span class="ctg-store" data-eco="${s.eco}">${s.nombre}${cerradaBadge(s)}</span><span class="ct-sub">ECO ${s.eco} · ${s.zona}</span></td>${cells}<td class="sc-c"><b class="neg">${peso(fj)}</b></td><td class="sc-c"><span class="neg">${pj.toFixed(2)}%</span></td></tr>`;
-  }).join('');
-  const totFalt=stores.reduce((a,s)=>a+fa(s,MES),0);
-  document.getElementById('modal').innerHTML=`
-    <div class="mhead"><button class="x" onclick="closeModal()">✕</button><h3>Tiendas a trabajar · Efectivo</h3><p>${stores.length} tiendas con mayor faltante · objetivo -0.06% · faltante ${ML[MES].toLowerCase()} total ${peso(totFalt)} · toca una tienda para su ficha</p></div>
-    <div class="mbody">
-      <div class="sec-t"><span class="bar-i"></span>Faltante de efectivo por tienda y mes · ordenado por faltante de ${ML[MES].toLowerCase()}</div>
-      <div class="ctd-wrap" style="margin-top:4px"><table class="ctd-table sc-table" style="min-width:760px"><thead>${head}</thead><tbody>${rows}</tbody></table></div>
-    </div>`;
-  document.getElementById('modal').classList.add('wide');
-  document.getElementById('modalBg').classList.add('open');
-  document.body.style.overflow='hidden';
-  document.querySelectorAll('#modal .ctg-store[data-eco]').forEach(r=>r.onclick=()=>openStore(+r.dataset.eco));
-}
-// ============ VALIDACIÓN ============
-let vMonth=null;
-function vCompute(month){
-  const out={};
-  DATA.regions.forEach(r=>{
-    const vals=S.filter(s=>s.region===r&&s.meses[month]&&!s.meses[month].apertura).map(s=>s.meses[month]);
-    const monto=vals.reduce((a,v)=>a+v.monto,0), venta=vals.reduce((a,v)=>a+v.venta,0);
-    out[r]={n:vals.length,monto,venta,pct:venta?monto/venta:null};
-  });
-  const all=S.filter(s=>s.meses[month]&&!s.meses[month].apertura).map(s=>s.meses[month]);
-  const mo=all.reduce((a,v)=>a+v.monto,0),ve=all.reduce((a,v)=>a+v.venta,0);
-  out.__total={n:all.length,monto:mo,venta:ve,pct:ve?mo/ve:null};
-  return out;
-}
 function renderValida(){
   const el=document.getElementById('v-valida');
   if(!vMonth)vMonth=SELM;
