@@ -772,7 +772,7 @@ tbody tr:last-child td{border-bottom:none}
       <button class="tab" data-v="efectivo">Efectivo</button>
       <button class="tab" data-v="peor">Ranking</button>
       <button class="tab" data-v="resumen">Resumen Ejecutivo</button>
-      <button class="tab" data-v="valida">Validación</button>
+      <button class="tab" data-v="valida">Auditorías</button>
     </div>
   </div>
 </header>
@@ -3139,7 +3139,11 @@ function show(v){
 }
 let validaUnlocked=false;
 document.getElementById('tabs').onclick=e=>{const b=e.target.closest('.tab');if(!b)return;
-  if((b.dataset.v==='valida'||b.dataset.v==='resumen')&&!validaUnlocked){
+  if(b.dataset.v==='valida'){
+    window.open('https://seguiminetoauditorias.vercel.app/','_blank');
+    return;
+  }
+  if(b.dataset.v==='resumen'&&!validaUnlocked){
     const pwd=prompt('Acceso restringido. Ingresa la contraseña:');
     if(pwd===null)return;
     if(pwd.trim()!=='campo26'){alert('Contraseña incorrecta.');return;}
