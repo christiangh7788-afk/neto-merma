@@ -1788,17 +1788,17 @@ function conteoTotalsWk(s,months,wks){
   return t;
 }
 function ctDetailRows(grpStores,months,st){
-  const wk=conteoWeek==='all'?0:+conteoWeek;
+  const wks=conteoWeek.includes('all')?null:conteoWeek.map(Number);
   const out=[];const miss={};
   grpStores.forEach(s=>months.forEach(m=>{const c=ctSub(s.conteos&&s.conteos[m]);if(!c)return;
     if(st==='n'){
-      (c.det||[]).forEach(d=>{if(!wk||folWk(d[0])===wk)out.push({s,m,d,k:'n'});});
+      (c.det||[]).forEach(d=>{if(!wks||wks.includes(folWk(d[0])))out.push({s,m,d,k:'n'});});
       const have=(c.det||[]).length;
       if((c.n||0)>have)miss[m]=(miss[m]||0)+((c.n||0)-have);
     }else{
       const e=c.dete||{};
       const lists= st==='abi' ? [['abi',e.abi||[]],['otr',e.otr||[]]] : [[st,e[st]||[]]];
-      lists.forEach(([k,arr])=>arr.forEach(d=>{if(!wk||folWk(d[0])===wk)out.push({s,m,d,k});}));
+      lists.forEach(([k,arr])=>arr.forEach(d=>{if(!wks||wks.includes(folWk(d[0])))out.push({s,m,d,k});}));
       const cnt= st==='abi' ? (c.abi||0)+(c.otr||0) : (c[st]||0);
       const have= st==='abi' ? ((e.abi||[]).length+(e.otr||[]).length) : (e[st]||[]).length;
       if(cnt>have)miss[m]=(miss[m]||0)+(cnt-have);
@@ -1811,7 +1811,7 @@ function ctGrpDetail(name,grpStores,months,st){
   const LBL={n:'Conteos cerrados',cre:'Conteos creados',can:'Conteos cancelados',abi:'Conteos abiertos y otros'};
   const ESTK={cre:'Creado',can:'Cancelado',abi:'Abierto'};
   const {out,miss}=ctDetailRows(grpStores,months,st);
-  const wk=conteoWeek!=='all'?' · '+wkLabel(+conteoWeek):'';
+  const wk=!conteoWeek.includes('all')?' · '+conteoWeek.map(w=>wkLabel(+w)).join(', '):'';
   const closed=st==='n';
   let tf=0,ts=0,tart=0;
   const body=out.map(o=>{
@@ -1858,7 +1858,7 @@ function coachConteosHTML(name){
   const mermaOf=s=>conteoMode==='ult'?ultOf(s):resAt(s,SELM);
   const det=ctModalView==='detalle';
   const rows=grpStores.map(s=>{
-    const t=(conteoWeek!=='all')?conteoTotalsWk(s,months,+conteoWeek):conteoTotals(s,months);
+    const t=(!conteoWeek.includes('all'))?conteoTotalsWk(s,months,conteoWeek.map(Number)):conteoTotals(s,months);
     const total=t.n+t.cre+t.abi+t.otr; // cancelados fuera de asignados
     const cumpl=total?Math.round(t.n/total*100):0;
     const u=mermaOf(s);
@@ -1874,7 +1874,7 @@ function coachConteosHTML(name){
   const tfalt=rows.reduce((a,r)=>a+r.falt,0),tsob=rows.reduce((a,r)=>a+r.sob,0);
   const tmonto=rows.reduce((a,r)=>a+r.umonto,0);
   const zonas=byCoach?[...new Set(grpStores.map(s=>s.zona))].sort().join(' · '):(zonaCoach(name)+' · '+[...new Set(grpStores.map(s=>shortReg(s.region)))].join(' · '));
-  const wkTxt=conteoWeek!=='all'?(' · '+wkLabel(+conteoWeek)):'';
+  const wkTxt=!conteoWeek.includes('all')?(' · semana'+(conteoWeek.length>1?'s ':' ')+conteoWeek.map(w=>wkLabel(+w)).join(', ')):'';
   const basis=conteoMode==='ult'?'todo el periodo':ML[SELM];
   const dCols=det?'<th>Creados</th><th>Canc.</th><th>Abiertos</th>':'';
   const body=rows.map(r=>`<tr>
