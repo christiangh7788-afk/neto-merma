@@ -866,6 +866,7 @@ const byZona=(r,z)=>S.filter(s=>s.region===r&&s.zona===z);
 const zonasOf=r=>[...new Set(byReg(r).map(s=>s.zona))].sort();
 const zonaCoach=z=>{const s=S.find(x=>x.zona===z);return s?(s.supervisor||'VACANTE'):'';};
 function availMonths(){return MONTHS.filter(m=>m!=='__sel__'&&S.some(s=>s.meses[m]));}
+function efecAvailMonths(){return MONTHS.filter(m=>m!=='__sel__'&&S.some(s=>s.meses[m]||(s.efVenta&&s.efVenta[m])));}
 function availConteoMonths(){const f=s=>conteoGroup==='zona'?(s.ctd||{}):(s.conteos||{});return MONTHS.filter(m=>m!=='__sel__'&&S.some(s=>{const c=ctSub(f(s)[m]);return c&&(c.n+c.cre+c.can+c.abi+c.otr)>0;}));}
 function isMulti(){return SELMS.filter(m=>m!=='__sel__').length>1;}
 function selLabel(){
@@ -2992,7 +2993,7 @@ function renderEfectivo(){
   }).join('');
 
   el.innerHTML=`
-  <div class="topbar">${monthSelect()}${efecScopeSelect()}<div class="mselect" style="gap:11px"><label>Periodo</label><div class="rseg" id="efecModeSeg"><button class="${efecMode==='periodo'?'on':''}" data-md="periodo">Mes / selección</button><button class="${efecMode==='ult'?'on':''}" data-md="ult">Último mes</button></div></div><span class="tb-note">Faltante de efectivo${efecScope!=='all'?' · <b>'+shortReg(efecScope)+'</b>':''} · ${lblPer} · ${rank.length} zonas con faltante · total ${peso(totalFalt)}</span></div>
+  <div class="topbar">${monthSelect(efecAvailMonths())}${efecScopeSelect()}<div class="mselect" style="gap:11px"><label>Periodo</label><div class="rseg" id="efecModeSeg"><button class="${efecMode==='periodo'?'on':''}" data-md="periodo">Mes / selección</button><button class="${efecMode==='ult'?'on':''}" data-md="ult">Último mes</button></div></div><span class="tb-note">Faltante de efectivo${efecScope!=='all'?' · <b>'+shortReg(efecScope)+'</b>':''} · ${lblPer} · ${rank.length} zonas con faltante · total ${peso(totalFalt)}</span></div>
   <div class="kpis">${kpiCia}${kpiRegs}</div>
   <div class="grid2">
     <div class="card">
