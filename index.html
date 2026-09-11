@@ -809,7 +809,7 @@ const DESC_DATA = {"27":{"VERACRUZ CENTRO":{"zonas":{"BOCA DEL RIO":{"tiendas":[
 const DESC_RESUMEN = {"27":{"total":239,"con":98,"sin":141,"folios":226,"rango":"01/07 al 05/07/2026"},"28":{"total":239,"con":103,"sin":136,"folios":224,"rango":"06/07 al 12/07/2026"},"29":{"total":239,"con":132,"sin":107,"folios":321,"rango":"13/07 al 19/07/2026"},"30":{"total":239,"con":66,"sin":173,"folios":150,"rango":"20/07 al 26/07/2026"},"31":{"total":239,"con":130,"sin":109,"folios":316,"rango":"27/07 al 02/08/2026"},"32":{"total":246,"con":138,"sin":108,"folios":294,"rango":"03/08 al 09/08/2026"},"33":{"total":246,"con":172,"sin":74,"folios":351,"rango":"10/08 al 16/08/2026"},"34":{"total":246,"con":89,"sin":157,"folios":184,"rango":"17/08 al 23/08/2026"},"35":{"total":246,"con":165,"sin":81,"folios":362,"rango":"24/08 al 30/08/2026"},"36":{"total":246,"con":166,"sin":80,"folios":349,"rango":"31/08 al 06/09/2026"},"37":{"total":247,"con":120,"sin":127,"folios":239,"rango":"07/09 al 13/09/2026"}};
 const DESC_WEEKS = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37];
 let ctMod='cumpl';
-let descWeek = DESC_WEEKS[DESC_WEEKS.length-1];
+let descWeek = [DESC_WEEKS[DESC_WEEKS.length-1]];
 let descRegion=null, descZona=null, descOpenTienda=null;
 let OBJ, MONTHS, ML, LATEST, SELM, S; let SELMS=[];
 function cssVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
@@ -1998,7 +1998,68 @@ function openTiendaConteos(eco){
   document.querySelectorAll('#modal .tc-mrow[data-m]').forEach(tr=>tr.onclick=()=>{const mm=tr.dataset.m;tcOpen=(tcOpen===mm)?null:mm;openTiendaConteos(eco);});
 }
 function descPct(con,total){return total? Math.round(con/total*100):0;}
-function descWeekSelect(){return `<div class="mselect" style="gap:11px"><label>Semana</label><div class="rseg" id="descWeekSeg">${DESC_WEEKS.map(w=>`<button class="${descWeek===w?'on':''}" data-w="${w}">S${w}</button>`).join('')}</div></div>`;}
+function descAgg(weeks){
+  // combina DESC_DATA de varias semanas en una sola estructura (misma forma que una semana individual)
+  const out={};
+  weeks.forEach(w=>{
+    const semData=DESC_DATA[w];if(!semData)return;
+    for(const region in semData){
+      const r=semData[region];
+      const or_=out[region]=out[region]||{zonas:{},total:0,con:0,sin:0};
+      for(const zona in r.zonas){
+        const z=r.zonas[zona];
+        const oz=or_.zonas[zona]=or_.zonas[zona]||{tiendas:{},total:z.total,con:0,sin:0};
+        z.tiendas.forEach(t=>{
+          const ot=oz.tiendas[t.eco]=oz.tiendas[t.eco]||{eco:t.eco,tienda:t.tienda,supervisor:t.supervisor,con_descarga:false,n_folios:0,folios:[]};
+          if(t.con_descarga){ot.con_descarga=true;ot.n_folios+=t.n_folios;ot.folios=ot.folios.concat(t.folios);}
+        });
+      }
+    }
+  });
+  for(const region in out){
+    const r=out[region];let rc=0,rt=0;
+    for(const zona in r.zonas){
+      const z=r.zonas[zona];z.tiendas=Object.values(z.tiendas);
+      z.con=z.tiendas.filter(t=>t.con_descarga).length;z.sin=z.total-z.con;
+      rc+=z.con;rt+=z.total;
+    }
+    r.con=rc;r.total=rt;r.sin=rt-rc;
+  }
+  return out;
+}
+function descResumenAgg(weeks){
+  const agg=descAgg(weeks);let total=0,con=0,folios=0;
+  for(const region in agg){total+=agg[region].total;con+=agg[region].con;
+    for(const zona in agg[region].zonas)folios+=agg[region].zonas[zona].tiendas.reduce((a,t)=>a+t.n_folios,0);}
+  const rangos=weeks.map(w=>DESC_RESUMEN[w]&&DESC_RESUMEN[w].rango).filter(Boolean);
+  const rango=weeks.length>1?`${weeks.length} semanas combinadas`:(rangos[0]||'');
+  return {total,con,sin:total-con,folios,rango};
+}
+function descWeekLabel(){
+  if(descWeek.length===1)return 'S'+descWeek[0];
+  return descWeek.length+' semanas';
+}
+function descWeekSelect(){
+  const pre=`<button type="button" class="mp-pre" data-dwlast="1">Última</button>`;
+  const opts=DESC_WEEKS.slice().reverse().map(w=>`<label class="mp-opt"><input type="checkbox" value="${w}" ${descWeek.includes(w)?'checked':''}><span>S${w}</span></label>`).join('');
+  return `<div class="mselect wpick mpick"><label>Semana</label>
+    <button type="button" class="mp-btn">${descWeekLabel()}<span class="mp-cny">▾</span></button>
+    <div class="mp-pop" hidden><div class="mp-presets">${pre}</div><div class="mp-list">${opts}</div></div></div>`;
+}
+function bindDescWeekSelect(){
+  const wrap=document.querySelector('.wpick');if(!wrap)return;
+  const btn=wrap.querySelector('.mp-btn'),pop=wrap.querySelector('.mp-pop');
+  if(!btn||!pop)return;
+  btn.onclick=e=>{e.stopPropagation();const open=pop.hidden;document.querySelectorAll('.mp-pop').forEach(p=>p.hidden=true);pop.hidden=!open;};
+  pop.querySelectorAll('.mp-pre').forEach(b=>b.onclick=()=>{
+    descWeek=[DESC_WEEKS[DESC_WEEKS.length-1]];descRegion=null;descZona=null;descOpenTienda=null;renderConteos();
+  });
+  pop.querySelectorAll('.mp-list input').forEach(cb=>cb.onchange=()=>{
+    const ck=[...pop.querySelectorAll('.mp-list input:checked')].map(i=>+i.value);
+    descWeek=ck.length?ck:[DESC_WEEKS[DESC_WEEKS.length-1]];
+    descRegion=null;descZona=null;descOpenTienda=null;renderConteos();
+  });
+}
 function descBreadcrumb(){
   let h=`<div class="desc-crumb"><span class="desc-crumb-link" data-lvl="regiones">Regiones</span>`;
   if(descRegion) h+=` › <span class="desc-crumb-link" data-lvl="zonas">${descRegion}</span>`;
@@ -2006,7 +2067,7 @@ function descBreadcrumb(){
   return h+'</div>';
 }
 function descResumenCards(){
-  const r=DESC_RESUMEN[descWeek];const p=descPct(r.con,r.total);
+  const r=descResumenAgg(descWeek);const p=descPct(r.con,r.total);
   return `<div class="kpis">
     <div class="kpi"><div class="stripe s-navy"></div><div class="lab">Tiendas</div><div class="val">${r.total}</div><div class="sub">${r.rango}</div></div>
     <div class="kpi"><div class="stripe s-green"></div><div class="lab">Con descarga</div><div class="val" style="color:var(--green)">${r.con}</div><div class="sub">${p}% de cumplimiento</div></div>
@@ -2015,7 +2076,7 @@ function descResumenCards(){
   </div>`;
 }
 function descRegionesHTML(){
-  const semData=DESC_DATA[descWeek];let h='<div class="desc-grid">';
+  const semData=descAgg(descWeek);let h='<div class="desc-grid">';
   for(const region in semData){
     const r=semData[region];const p=descPct(r.con,r.total);const alerta=p<50?'alerta':'';
     h+=`<div class="desc-tile ${alerta}" data-region="${region}">
@@ -2027,7 +2088,7 @@ function descRegionesHTML(){
   return h+'</div>';
 }
 function descZonasHTML(region){
-  const zonas=DESC_DATA[descWeek][region].zonas;let h='<div class="desc-grid">';
+  const zonas=descAgg(descWeek)[region].zonas;let h='<div class="desc-grid">';
   for(const zona of Object.keys(zonas).sort()){
     const z=zonas[zona];const p=descPct(z.con,z.total);const alerta=p<50?'alerta':'';
     h+=`<div class="desc-tile ${alerta}" data-zona="${zona}">
@@ -2039,7 +2100,7 @@ function descZonasHTML(region){
   return h+'</div>';
 }
 function descTiendasHTML(region,zona){
-  const tiendas=DESC_DATA[descWeek][region].zonas[zona].tiendas;
+  const tiendas=descAgg(descWeek)[region].zonas[zona].tiendas;
   let h='<table class="desc-table"><thead><tr><th>Tienda</th><th>Supervisor</th><th>Descarga</th><th>Folios</th></tr></thead><tbody>';
   for(const t of tiendas){
     h+=`<tr class="desc-trow ${t.con_descarga?'':'sin'}" data-eco="${t.eco}">
@@ -2057,12 +2118,12 @@ function descPanelHTML(){
   if(!descRegion) body=descRegionesHTML();
   else if(!descZona) body=descZonasHTML(descRegion);
   else body=descTiendasHTML(descRegion,descZona);
-  return `<div class="topbar">${descWeekSelect()}<span class="tb-note">Módulo de Descarga de Merma (Folios Brisa) · Semana <b>${descWeek}</b> · ${DESC_RESUMEN[descWeek].rango}</span></div>
+  const rr=descResumenAgg(descWeek);
+  return `<div class="topbar">${descWeekSelect()}<span class="tb-note">Módulo de Descarga de Merma (Folios Brisa) · Semana${descWeek.length>1?'s':''} <b>${descWeek.map(w=>'S'+w).join(', ')}</b> · ${rr.rango}</span></div>
   ${descResumenCards()}${descBreadcrumb()}${body}`;
 }
 function descWire(el){
-  const wseg=document.getElementById('descWeekSeg');
-  if(wseg)wseg.querySelectorAll('button').forEach(b=>b.onclick=()=>{descWeek=+b.dataset.w;descRegion=null;descZona=null;descOpenTienda=null;renderConteos();});
+  bindDescWeekSelect();
   el.querySelectorAll('.desc-tile[data-region]').forEach(t=>t.onclick=()=>{descRegion=t.dataset.region;renderConteos();});
   el.querySelectorAll('.desc-tile[data-zona]').forEach(t=>t.onclick=()=>{descZona=t.dataset.zona;renderConteos();});
   el.querySelectorAll('.desc-trow').forEach(tr=>tr.onclick=()=>{const eco=+tr.dataset.eco;descOpenTienda=(descOpenTienda===eco?null:eco);renderConteos();});
